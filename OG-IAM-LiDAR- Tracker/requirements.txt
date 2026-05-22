@@ -1,0 +1,7 @@
+pyrplidar>=0.1.2
+rplidar-roboticia>=0.9.5
+pyserial>=3.5
+numpy>=1.20
+opencv-python>=4.5
+websockets>=10.0
+python-osc>=1.8

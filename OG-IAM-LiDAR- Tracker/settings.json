@@ -1,0 +1,11 @@
+{
+    "calibrationPreset": "training1",
+    "channelType": 0,
+    "connectOnStartup": false,
+    "device": "RPLIDAR S2",
+    "flipCalibrationH": true,
+    "flipCalibrationV": true,
+    "mirrorCloudViewer": false,
+    "screen": "\\\\.\\DISPLAY1",
+    "uartPort": "COM3"
+}
