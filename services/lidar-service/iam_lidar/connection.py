@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import queue
 import threading
+import time
 from collections.abc import Callable
 
 from iam_lidar.config import ConnectionConfig
@@ -23,6 +24,17 @@ _log = logging.getLogger(__name__)
 
 # Placed on the scan queue by the reader thread when the device fails.
 _READER_FAILED = object()
+
+# Minimum gap between dropped-scan warnings: a stalled consumer drops a scan
+# on every read, so the warning is rate-limited to keep it from flooding the
+# log while staying observable.
+_DROP_LOG_INTERVAL_S = 5.0
+
+# Grace period to wait for the reader thread to unwind after disconnect()
+# before giving up on the join. This is independent of the (typically much
+# shorter) watchdog window: disconnect() must unblock read_scan promptly, but
+# a handle teardown plus the final loop iteration still take a little time.
+_READER_JOIN_TIMEOUT_S = 2.0
 
 
 class Backoff:
@@ -70,6 +82,10 @@ class ConnectionManager:
         self._health = health or HealthReporter()
         self._on_connection_lost = on_connection_lost
         self._stop = threading.Event()
+        # Rate-limit state for dropped-scan logging in _offer. Touched only by
+        # the reader thread, so it needs no lock.
+        self._dropped_since_log = 0
+        self._last_drop_log_s = 0.0
         # The default sleep is stop-aware: a pending shutdown ends a backoff
         # wait immediately instead of blocking for the full delay.
         self._sleep = sleep if sleep is not None else self._stop.wait
@@ -94,8 +110,10 @@ class ConnectionManager:
             driver = self._driver_factory()
             if self._connect(driver):
                 self._backoff.reset()
+                # _stream owns the driver from here: it disconnects and joins
+                # the reader thread before returning, so nothing leaks across
+                # the reconnect below.
                 self._stream(driver)
-                self._safe_disconnect(driver)
                 if not self._stop.is_set() and self._on_connection_lost is not None:
                     self._on_connection_lost()
             else:
@@ -118,7 +136,15 @@ class ConnectionManager:
         return True
 
     def _stream(self, driver: LidarDriver) -> None:
-        """Deliver scans until the device fails, stalls, or stop() is called."""
+        """Deliver scans until the device fails, stalls, or stop() is called.
+
+        Owns the driver and its reader thread for the whole connection: on
+        any exit — watchdog trip, device failure, or stop() — the driver is
+        disconnected and the reader thread is joined before returning. The
+        disconnect is what unblocks a reader stuck inside a blocking
+        ``read_scan`` on a hung device (see :meth:`LidarDriver.disconnect`),
+        so the thread cannot be leaked across a reconnect.
+        """
         scans: queue.Queue = queue.Queue(maxsize=2)
         reader_stop = threading.Event()
         reader = threading.Thread(
@@ -144,7 +170,19 @@ class ConnectionManager:
                 self._on_scan(item)
                 self._health.set(HealthState.STREAMING)
         finally:
+            # Ask the reader to stop, then disconnect: the disconnect is what
+            # unblocks a reader still inside a blocking read_scan(). Only then
+            # can the join succeed.
             reader_stop.set()
+            self._safe_disconnect(driver)
+            reader.join(timeout=_READER_JOIN_TIMEOUT_S)
+            if reader.is_alive():
+                _log.warning(
+                    "reader thread did not terminate within %.1fs of "
+                    "disconnect; leaking it (driver disconnect() may not "
+                    "unblock read_scan)",
+                    _READER_JOIN_TIMEOUT_S,
+                )
 
     def _read_loop(
         self,
@@ -162,13 +200,26 @@ class ConnectionManager:
                 return
             self._offer(scans, scan)
 
-    @staticmethod
-    def _offer(scans: queue.Queue, item: object) -> None:
-        """Put an item on the queue, dropping it if the consumer has stalled."""
+    def _offer(self, scans: queue.Queue, item: object) -> None:
+        """Put an item on the queue, dropping it if the consumer has stalled.
+
+        A dropped scan is silent scan loss, so it is logged — but rate-limited
+        (``_DROP_LOG_INTERVAL_S``) so a stalled consumer, which drops a scan on
+        every read, cannot flood the log.
+        """
         try:
             scans.put(item, timeout=1.0)
         except queue.Full:
-            pass
+            self._dropped_since_log += 1
+            now = time.monotonic()
+            if now - self._last_drop_log_s >= _DROP_LOG_INTERVAL_S:
+                _log.warning(
+                    "scan queue full: dropped %d scan(s); consumer is not "
+                    "keeping up",
+                    self._dropped_since_log,
+                )
+                self._dropped_since_log = 0
+                self._last_drop_log_s = now
 
     @staticmethod
     def _safe_disconnect(driver: LidarDriver) -> None:

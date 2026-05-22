@@ -48,4 +48,11 @@ class LidarDriver(ABC):
 
     @abstractmethod
     def disconnect(self) -> None:
-        """Close the device. Safe to call even when not connected."""
+        """Close the device. Safe to call even when not connected.
+
+        MUST cause a :meth:`read_scan` running concurrently on another
+        thread to return or raise :class:`LidarError` promptly: it is the
+        only lever the ConnectionManager has to release a reader thread
+        stuck in a blocking read on a hung device. ``disconnect()`` may be
+        called from a thread other than the one inside ``read_scan``.
+        """
