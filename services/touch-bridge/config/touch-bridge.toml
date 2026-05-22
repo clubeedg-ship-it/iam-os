@@ -1,0 +1,21 @@
+# IAM-OS touch-bridge configuration.
+
+[upstream]
+# Unix domain socket published by lidar-service. The bridge reads touch
+# frames from it. This must match the lidar-service [output] socket_path.
+socket_path = "/run/iam-os/lidar.sock"
+
+[server]
+# WebSocket address that games and the launcher connect to.
+host = "127.0.0.1"
+port = 8765
+
+[broadcast]
+# When no upstream frame has arrived for this long, the bridge broadcasts an
+# empty (count: 0) frame, so consumers never see stale data — touch contract
+# invariant 5 (docs/touch-contract.md).
+heartbeat_interval_s = 1.0
+
+[logging]
+# Log level: DEBUG, INFO, WARNING, or ERROR.
+level = "INFO"
