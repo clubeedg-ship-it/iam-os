@@ -9,6 +9,7 @@ exercised end to end without a sensor (specs.md §9). It implements the same
 from __future__ import annotations
 
 import math
+import time
 
 from iam_lidar.drivers.base import DeviceInfo, LidarDriver, LidarError
 from iam_lidar.frames import Scan, ScanSample
@@ -33,6 +34,9 @@ class SimDriver(LidarDriver):
     def read_scan(self) -> Scan:
         if not self._connected:
             raise LidarError("simulator is not connected")
+        # Pace the simulator at a realistic frame rate so a long-running
+        # --simulate session does not busy-loop a CPU core.
+        time.sleep(_TICK_SECONDS)
         self._elapsed_s += _TICK_SECONDS
         return self._synthetic_scan()
 

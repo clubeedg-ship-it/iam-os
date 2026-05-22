@@ -12,7 +12,6 @@ from __future__ import annotations
 import logging
 import queue
 import threading
-import time
 from collections.abc import Callable
 
 from iam_lidar.config import ConnectionConfig
@@ -63,20 +62,22 @@ class ConnectionManager:
         config: ConnectionConfig,
         health: HealthReporter | None = None,
         on_connection_lost: Callable[[], None] | None = None,
-        sleep: Callable[[float], None] = time.sleep,
+        sleep: Callable[[float], object] | None = None,
     ) -> None:
         self._driver_factory = driver_factory
         self._on_scan = on_scan
         self._config = config
         self._health = health or HealthReporter()
         self._on_connection_lost = on_connection_lost
-        self._sleep = sleep
+        self._stop = threading.Event()
+        # The default sleep is stop-aware: a pending shutdown ends a backoff
+        # wait immediately instead of blocking for the full delay.
+        self._sleep = sleep if sleep is not None else self._stop.wait
         self._backoff = Backoff(
             initial_s=config.backoff_initial_s,
             maximum_s=config.backoff_max_s,
             factor=config.backoff_factor,
         )
-        self._stop = threading.Event()
 
     @property
     def health(self) -> HealthReporter:
