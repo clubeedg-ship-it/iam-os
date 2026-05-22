@@ -83,9 +83,15 @@ class FrameSink:
 
     def _accept_loop(self) -> None:
         """Accept incoming client connections until the sink is closed."""
-        while self._running and self._server is not None:
+        while self._running:
+            # Capture the server reference once: a concurrent close() may set
+            # self._server to None at any point, so re-reading it between the
+            # None check and accept() would risk an AttributeError.
+            server = self._server
+            if server is None:
+                return
             try:
-                client, _ = self._server.accept()
+                client, _ = server.accept()
             except OSError:
                 return
             with self._lock:

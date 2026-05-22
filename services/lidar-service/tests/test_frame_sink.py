@@ -4,6 +4,7 @@ import json
 import os
 import socket
 import tempfile
+import threading
 import time
 
 from iam_lidar.frames import Touch, TouchFrame
@@ -54,3 +55,53 @@ def test_publish_with_no_client_is_silently_dropped():
         sink.publish(TouchFrame(seq=1))  # must not raise
     finally:
         sink.close()
+
+
+def _accept_thread(sink):
+    """Return the daemon accept-loop thread started by ``sink``."""
+    for thread in threading.enumerate():
+        if thread.name.startswith("Thread-") and thread.daemon and thread.is_alive():
+            target = getattr(thread, "_target", None)
+            if target is not None and target.__name__ == "_accept_loop":
+                return thread
+    return None
+
+
+def test_close_while_accept_loop_runs_shuts_down_cleanly():
+    """close() racing the running accept loop terminates it without error.
+
+    The accept loop reads self._server (None check, then accept()) while
+    close() concurrently nulls it. The fix captures the reference into a
+    local so the loop cannot hit an AttributeError mid-iteration. The window
+    is tiny and nondeterministic, so this is a behavioral safety net rather
+    than a deterministic reproduction of the failure.
+    """
+    socket_path = os.path.join(tempfile.mkdtemp(dir="/tmp"), "s")
+    sink = FrameSink(socket_path)
+    sink.start()
+
+    accept_thread = _accept_thread(sink)
+    assert accept_thread is not None and accept_thread.is_alive()
+
+    # A client is mid-handshake while close() races the accept loop.
+    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        client.connect(socket_path)
+        sink.close()  # must not raise; nulls self._server out of band
+    finally:
+        client.close()
+
+    accept_thread.join(timeout=2.0)
+    assert not accept_thread.is_alive(), "accept loop did not terminate"
+    assert sink._server is None
+
+
+def test_repeated_start_close_cycles_are_clean():
+    """Starting and closing the sink several times leaves no dangling state."""
+    socket_path = os.path.join(tempfile.mkdtemp(dir="/tmp"), "s")
+    for _ in range(5):
+        sink = FrameSink(socket_path)
+        sink.start()
+        sink.close()  # must not raise
+        assert sink._server is None
+        assert not os.path.exists(socket_path)
