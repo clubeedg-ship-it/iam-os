@@ -1,0 +1,54 @@
+# IAM-OS lidar-service configuration.
+#
+# Every tunable value lives here. No device parameters or detection
+# constants are hardcoded in the source (specs.md §6, R1). Any value may
+# be overridden at runtime by an environment variable named
+# IAM_LIDAR_<SECTION>_<KEY> (uppercase), e.g. IAM_LIDAR_DEVICE_PORT.
+
+[device]
+# Driver to use: "rplidar" (real hardware) or "simulator".
+driver = "rplidar"
+# Serial port. An empty string triggers auto-detection (R2).
+port = ""
+# Baud rates attempted, in order, when connecting.
+baud_rates = [1000000, 256000, 115200]
+# Substrings matched against USB serial adapter descriptions during
+# auto-detection.
+adapter_keywords = ["CP210", "Silicon Labs", "Silicon"]
+# Serial connection timeout, seconds.
+connect_timeout_s = 3.0
+
+[connection]
+# Exponential backoff between reconnect attempts (R3).
+backoff_initial_s = 0.5
+backoff_max_s = 30.0
+backoff_factor = 2.0
+# Watchdog: if no scan arrives within this window the device is declared
+# failed, disconnected, and re-initialised (R4).
+watchdog_timeout_s = 3.0
+
+[detection]
+# Valid measurement range, millimetres. Points outside are discarded.
+distance_min_mm = 200
+distance_max_mm = 6000
+# A scan point closer than its baseline by at least this margin counts
+# as a touch.
+baseline_threshold_mm = 150
+# Minimum number of samples required for a usable baseline.
+baseline_min_points = 10
+# Clustering: points within this radius join the same cluster.
+cluster_tolerance_mm = 100
+# Cluster size bounds, in points. Clusters outside the range are ignored.
+cluster_min_points = 8
+cluster_max_points = 300
+# Tracking: a touch within this distance of a previous-frame touch keeps
+# that touch's id.
+track_tolerance_mm = 150
+
+[output]
+# Unix domain socket the touch-bridge connects to for touch frames.
+socket_path = "/run/iam-os/lidar.sock"
+
+[logging]
+# Log level: DEBUG, INFO, WARNING, or ERROR.
+level = "INFO"
