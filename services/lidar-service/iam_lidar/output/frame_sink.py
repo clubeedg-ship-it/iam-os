@@ -51,6 +51,11 @@ class FrameSink:
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(self._socket_path)
         server.listen(4)
+        # Give accept() a timeout so the accept loop wakes periodically and
+        # re-checks self._running. Closing a listening socket from another
+        # thread does NOT unblock a concurrent accept() on Linux, so close()
+        # alone cannot reliably stop the accept thread without this.
+        server.settimeout(0.5)
         self._server = server
         self._running = True
         threading.Thread(target=self._accept_loop, daemon=True).start()
@@ -92,6 +97,11 @@ class FrameSink:
                 return
             try:
                 client, _ = server.accept()
+            except TimeoutError:
+                # accept() timed out with no pending client: loop back and
+                # re-check self._running. Must precede the OSError handler
+                # because TimeoutError is a subclass of OSError.
+                continue
             except OSError:
                 return
             with self._lock:
