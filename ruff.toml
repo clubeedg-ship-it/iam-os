@@ -1,0 +1,3 @@
+# Ruff configuration — https://docs.astral.sh/ruff/
+# The legacy/ tree is reference-only code and is not linted.
+extend-exclude = ["legacy"]
