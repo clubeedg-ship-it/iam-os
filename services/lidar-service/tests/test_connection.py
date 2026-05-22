@@ -1,5 +1,6 @@
 """Tests for the connection manager — backoff, watchdog, and scan delivery."""
 
+import threading
 import time
 
 from iam_lidar.config import ConnectionConfig
@@ -187,3 +188,83 @@ def test_connection_lost_callback_fires_when_a_stream_drops():
     manager.run()
 
     assert losses  # the dropped stall connection notified the consumer
+
+
+# --- Reader-thread cleanup after a watchdog trip (C1) -----------------------
+
+
+class _BlocksUntilDisconnected:
+    """read_scan blocks on an Event; disconnect releases it — the contract.
+
+    Models a hung device: read_scan never returns on its own. The
+    ConnectionManager's only lever is disconnect(), which the LidarDriver
+    contract requires to unblock a concurrent read_scan(). After a watchdog
+    trip the manager must disconnect this driver *and join* its reader
+    thread, so the thread is not leaked across the reconnect.
+
+    Releasing the read does not let the reader exit immediately: it then
+    spends a short, bounded time finishing (a real handle close is not
+    instant). A manager that merely fires disconnect() and moves on leaves
+    the thread alive; a manager that joins the reader waits it out.
+    """
+
+    def __init__(self):
+        self._released = threading.Event()
+        self.reader_thread: threading.Thread | None = None
+        self.reading = threading.Event()
+
+    def connect(self):
+        return DeviceInfo(model="hung")
+
+    def read_scan(self):
+        # Record the thread the manager is reading us on, then block until
+        # disconnect() releases us — exactly like a blocking serial read.
+        self.reader_thread = threading.current_thread()
+        self.reading.set()
+        self._released.wait()
+        # The handle does not tear down instantly once released.
+        time.sleep(0.3)
+        raise LidarError("device disconnected")
+
+    def disconnect(self):
+        self._released.set()
+
+
+def test_watchdog_trip_joins_the_reader_thread_before_reconnecting():
+    """After a watchdog trip the stalled reader must be gone before the
+    next connection streams — the manager must join it, not leak it."""
+    created: list = []
+
+    def factory():
+        driver = _BlocksUntilDisconnected() if not created else _Streams()
+        created.append(driver)
+        return driver
+
+    manager: ConnectionManager
+    hung_reader_alive_at_reconnect: list[bool] = []
+
+    def on_scan(scan):
+        # First scan from the fresh (_Streams) driver: by now the stalled
+        # connection's reader thread must already have been joined.
+        hung = created[0]
+        if hung.reader_thread is not None:
+            hung_reader_alive_at_reconnect.append(hung.reader_thread.is_alive())
+        manager.stop()
+
+    manager = ConnectionManager(
+        driver_factory=factory,
+        on_scan=on_scan,
+        config=_config(watchdog_timeout_s=0.1),
+        sleep=lambda seconds: None,
+    )
+    manager.run()
+
+    assert len(created) >= 2  # watchdog tripped; manager built a fresh driver
+    hung = created[0]
+    assert isinstance(hung, _BlocksUntilDisconnected)
+    assert hung.reading.is_set()  # the reader really entered the blocking read
+    # The reader must not still be alive once the next connection streams...
+    assert hung_reader_alive_at_reconnect == [False]
+    # ...and must be fully terminated by the time run() returns.
+    assert hung.reader_thread is not None
+    assert not hung.reader_thread.is_alive()

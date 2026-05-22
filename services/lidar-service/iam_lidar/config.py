@@ -22,6 +22,15 @@ class ConfigError(Exception):
     """Raised when configuration is missing, unreadable, or incomplete."""
 
 
+_LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
+
+
+def _require_positive(value: float, label: str) -> None:
+    """Raise :class:`ConfigError` unless ``value`` is greater than zero."""
+    if value <= 0:
+        raise ConfigError(f"{label} must be > 0, got {value}")
+
+
 @dataclass(frozen=True, slots=True)
 class DeviceConfig:
     """The LiDAR device and how to connect to it."""
@@ -32,6 +41,12 @@ class DeviceConfig:
     adapter_keywords: list[str]
     connect_timeout_s: float
 
+    def __post_init__(self) -> None:
+        """Reject nonsensical device settings at load time."""
+        _require_positive(self.connect_timeout_s, "[device].connect_timeout_s")
+        if not self.baud_rates:
+            raise ConfigError("[device].baud_rates must not be empty")
+
 
 @dataclass(frozen=True, slots=True)
 class ConnectionConfig:
@@ -41,6 +56,22 @@ class ConnectionConfig:
     backoff_max_s: float
     backoff_factor: float
     watchdog_timeout_s: float
+
+    def __post_init__(self) -> None:
+        """Reject backoff/watchdog values that would misbehave at runtime."""
+        _require_positive(self.backoff_initial_s, "[connection].backoff_initial_s")
+        _require_positive(self.backoff_max_s, "[connection].backoff_max_s")
+        _require_positive(self.watchdog_timeout_s, "[connection].watchdog_timeout_s")
+        if self.backoff_max_s < self.backoff_initial_s:
+            raise ConfigError(
+                "[connection].backoff_max_s must be >= backoff_initial_s, got "
+                f"{self.backoff_max_s} < {self.backoff_initial_s}"
+            )
+        if self.backoff_factor < 1.0:
+            raise ConfigError(
+                "[connection].backoff_factor must be >= 1.0, got "
+                f"{self.backoff_factor}"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,6 +87,37 @@ class DetectionConfig:
     cluster_max_points: int
     track_tolerance_mm: float
 
+    def __post_init__(self) -> None:
+        """Reject detection thresholds that no scan point could satisfy."""
+        _require_positive(self.distance_min_mm, "[detection].distance_min_mm")
+        if self.distance_min_mm >= self.distance_max_mm:
+            raise ConfigError(
+                "[detection].distance_min_mm must be < distance_max_mm, got "
+                f"{self.distance_min_mm} >= {self.distance_max_mm}"
+            )
+        _require_positive(
+            self.baseline_threshold_mm, "[detection].baseline_threshold_mm"
+        )
+        _require_positive(
+            self.cluster_tolerance_mm, "[detection].cluster_tolerance_mm"
+        )
+        _require_positive(self.track_tolerance_mm, "[detection].track_tolerance_mm")
+        if self.baseline_min_points < 1:
+            raise ConfigError(
+                "[detection].baseline_min_points must be >= 1, got "
+                f"{self.baseline_min_points}"
+            )
+        if self.cluster_min_points < 1:
+            raise ConfigError(
+                "[detection].cluster_min_points must be >= 1, got "
+                f"{self.cluster_min_points}"
+            )
+        if self.cluster_min_points > self.cluster_max_points:
+            raise ConfigError(
+                "[detection].cluster_min_points must be <= cluster_max_points, "
+                f"got {self.cluster_min_points} > {self.cluster_max_points}"
+            )
+
 
 @dataclass(frozen=True, slots=True)
 class OutputConfig:
@@ -63,12 +125,25 @@ class OutputConfig:
 
     socket_path: str
 
+    def __post_init__(self) -> None:
+        """Reject an empty output socket path."""
+        if not self.socket_path:
+            raise ConfigError("[output].socket_path must not be empty")
+
 
 @dataclass(frozen=True, slots=True)
 class LoggingConfig:
     """Logging behaviour."""
 
     level: str
+
+    def __post_init__(self) -> None:
+        """Reject an unknown log level."""
+        if self.level not in _LOG_LEVELS:
+            raise ConfigError(
+                f"[logging].level must be one of {', '.join(_LOG_LEVELS)}, "
+                f"got {self.level!r}"
+            )
 
 
 @dataclass(frozen=True, slots=True)

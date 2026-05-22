@@ -90,3 +90,40 @@ def test_shipped_config_file_is_valid():
     config = load_config(shipped, env={})
     assert isinstance(config, Config)
     assert config.device.driver in ("rplidar", "simulator")
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ("connect_timeout_s = 3.0", "connect_timeout_s = -1.0"),
+        ("backoff_initial_s = 0.5", "backoff_initial_s = 0.0"),
+        ("backoff_max_s = 30.0", "backoff_max_s = -5.0"),
+        ("watchdog_timeout_s = 3.0", "watchdog_timeout_s = -2.0"),
+        ("backoff_factor = 2.0", "backoff_factor = 0.5"),
+        ("backoff_max_s = 30.0", "backoff_max_s = 0.1"),
+        ("baud_rates = [1000000, 256000, 115200]", "baud_rates = []"),
+        ("distance_min_mm = 200", "distance_min_mm = 0"),
+        ("distance_min_mm = 200", "distance_min_mm = 9000"),
+        ("baseline_threshold_mm = 150", "baseline_threshold_mm = -1"),
+        ("cluster_tolerance_mm = 100", "cluster_tolerance_mm = 0"),
+        ("track_tolerance_mm = 150", "track_tolerance_mm = -3"),
+        ("baseline_min_points = 10", "baseline_min_points = 0"),
+        ("cluster_min_points = 8", "cluster_min_points = 0"),
+        ("cluster_min_points = 8", "cluster_min_points = 400"),
+        ('socket_path = "/run/iam-os/lidar.sock"', 'socket_path = ""'),
+        ('level = "INFO"', 'level = "VERBOSE"'),
+    ],
+)
+def test_invalid_value_raises_config_error(tmp_path, old, new):
+    broken = _SAMPLE_TOML.replace(old, new)
+    assert broken != _SAMPLE_TOML
+    with pytest.raises(ConfigError):
+        load_config(_write(tmp_path, broken), env={})
+
+
+def test_invalid_value_from_environment_override_raises(tmp_path):
+    with pytest.raises(ConfigError):
+        load_config(
+            _write(tmp_path),
+            env={"IAM_LIDAR_CONNECTION_WATCHDOG_TIMEOUT_S": "-1.0"},
+        )

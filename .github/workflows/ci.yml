@@ -32,9 +32,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install test dependencies
-        run: pip install numpy pytest
+        run: pip install numpy pytest pytest-asyncio jsonschema websockets
       - name: Run lidar-service tests
         run: pytest services/lidar-service/tests
+      - name: Run touch-bridge tests
+        run: pytest services/touch-bridge/tests
 
   lint-js:
     name: Lint (JavaScript)
