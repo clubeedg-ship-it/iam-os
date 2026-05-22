@@ -1,0 +1,12 @@
+* d5d67b16ee765c48aa59153ff11c4cc6a3676ea7 [update] support RPLIDAR C1 model
+* a936499cf5e0742de55eb775f46354d94ba98629 [fix] fix network configuration setup for S2E
+* 276fc451b1acadde71982fe59bf1a520cd49401e [update] implement SIMINICS PAVO2 support, increase default cluster tolerance to 100mm
+* d1ec2d57979ef9cfc81209797bba5aadc3a73f8e [update] update RPLIDAR SDK to 2.0.0, add device network connection feature, add S2E support
+* 5034cfacec12c48c929d78193f1fa5ab2df93b3b [update] disable read-only settings dump during startup
+* ffc79f336ce78b1765f16ca97b4a0c35af5a710f [update] migrate *.pro.user file to QtCreator 11
+* c92948902ac0788dfaea7b67828ac13801c694ed [update] implement calibration presets support
+* d74d2a7cd46236e9d8b5bd91a3680ff1a9156063 [update] new RPLIDAR SDK version, support S2 model
+* fe07fbe021883e3910dea240cf4a58a68ee0fed7 [update] use fixed NUISensorBase tracking algorithm (fix equal sensor data passed in one frame error) + add more lidar devices
+* f8864636544ed6d94ebfc9d1b826fbb8ea8f4184 [update] revoke always saving ROI on disk at app exit (now save only then it changes from gui)
+* a3f406287c5789c48780848e422b9a949e79dbe6 [update] first release for Qt 5.15.2 (external 3rdparty libs like PCL build with Qt 5.15.0)
+* 42a8fd1016060b7c46b61d4ab5c16c8ee66b1da6 [init] prototype version
