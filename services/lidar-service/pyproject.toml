@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iam-lidar-service"
+version = "0.1.0"
+description = "IAM-OS LiDAR service: device driver, tracking, and calibration."
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "pyserial>=3.5",
+    "pyrplidar>=0.1.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+iam-lidar-service = "iam_lidar.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["iam_lidar"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
