@@ -31,14 +31,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pytest
-      - name: pytest
-        run: |
-          if find . -path ./.git -prune -o -path ./legacy -prune -o -name 'test_*.py' -print | grep -q .; then
-            pytest
-          else
-            echo "No Python tests yet; Phase 2 introduces the lidar-service test suite."
-          fi
+      - name: Install test dependencies
+        run: pip install numpy pytest
+      - name: Run lidar-service tests
+        run: pytest services/lidar-service/tests
 
   lint-js:
     name: Lint (JavaScript)
