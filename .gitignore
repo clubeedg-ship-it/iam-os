@@ -8,6 +8,8 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
+.ruff_cache/
 
 # Node
 node_modules/
@@ -20,3 +22,7 @@ build/
 # Editor
 .vscode/
 .idea/
+
+# OS image build artifacts
+*.img
+*.qcow2

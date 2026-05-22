@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/clubeedg-ship-it/iam-os/docs/touch-contract.schema.json",
+  "title": "IAM-OS Touch Frame",
+  "description": "One frame of touch data broadcast by touch-bridge on ws://localhost:8765. Touch contract version 1.0.0 — see docs/touch-contract.md.",
+  "type": "object",
+  "required": ["seq", "count", "touches"],
+  "additionalProperties": false,
+  "properties": {
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonically increasing frame counter. Resets to 0 only when touch-bridge restarts."
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of active touches in this frame. Invariant: equals the length of `touches`."
+    },
+    "touches": {
+      "type": "array",
+      "description": "Active touches in this frame. Empty array when count is 0.",
+      "items": {
+        "type": "object",
+        "required": ["id", "x", "y"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Stable identifier for the lifetime of a single touch. The same physical touch keeps the same id across frames."
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Horizontal position, normalized to the projection surface. 0.0 = left edge, 1.0 = right edge."
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Vertical position, normalized to the projection surface. 0.0 = top edge, 1.0 = bottom edge."
+          }
+        }
+      }
+    }
+  }
+}
