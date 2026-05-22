@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAM - Stapzone Therapeutische Training V8 Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{
+    --bg:#090b12;
+    --panel:#121623;
+    --panel-2:#171d2c;
+    --line:#262d41;
+    --text:#eef2ff;
+    --muted:#95a0b8;
+    --accent:#3dd5b0;
+    --accent-soft:rgba(61,213,176,.14);
+    --active:#ffd166;
+    --success:#5ad66f;
+    --danger:#ef6b73;
+    --info:#74b9ff;
+    --zone-idle:#1a2030;
+    --zone-disabled:#11151f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+    font-family:'Manrope',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    user-select:none;
+    cursor:none;
+}
+button,input,select{font:inherit}
+.hidden{display:none !important}
+.screen{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:32px;
+    background:radial-gradient(circle at top, #11182a 0%, #090b12 60%);
+}
+.panel{
+    width:min(1120px,100%);
+    background:rgba(18,22,35,.9);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 30px 80px rgba(0,0,0,.45);
+    backdrop-filter: blur(10px);
+}
+.hero{display:flex;justify-content:space-between;gap:28px;align-items:flex-start;margin-bottom:28px}
+.hero h1{font-size:40px;line-height:1.05;font-weight:800;margin-bottom:10px}
+.hero p{color:var(--muted);font-size:16px;max-width:680px;line-height:1.6}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.badge{
+    padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+}
+.mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mode-card{
+    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    cursor:pointer;
+    transition:transform .18s ease,border-color .18s ease, box-shadow .18s ease;
+    position:relative;
+    min-height:210px;
+}
+.mode-card:hover,.mode-card.selected{
+    transform:translateY(-3px);
+    border-color:var(--accent);
+    box-shadow:0 16px 36px rgba(0,0,0,.28);
+}
+.mode-icon{font-size:34px;margin-bottom:14px}
+.mode-name{font-size:18px;font-weight:800;margin-bottom:6px}
+.mode-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px}
+.mode-meta{font-size:12px;color:#b8c2d9;line-height:1.7}
+.bottom-actions{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:14px;flex-wrap:wrap}
+.start-btn,.ghost-btn,.danger-btn{
+    border:none;border-radius:14px;padding:14px 22px;font-weight:800;cursor:pointer;transition:transform .15s ease, opacity .15s ease;
+}
+.start-btn{background:var(--accent);color:#04110d}
+.ghost-btn{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}
+.danger-btn{background:#28151a;color:#ffdfe3;border:1px solid #4a232b}
+.start-btn:hover,.ghost-btn:hover,.danger-btn:hover{transform:translateY(-2px)}
+.info-strip{font-size:13px;color:var(--muted)}
+
+#gameScreen{position:fixed;inset:0;background:#080b11}
+.hud{
+    position:fixed;left:0;right:0;top:0;height:78px;padding:0 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    background:rgba(9,11,18,.88);border-bottom:1px solid rgba(255,255,255,.05);z-index:100;
+}
+.hud-left,.hud-right{display:flex;align-items:center;gap:14px}
+.hud-title{display:flex;flex-direction:column}
+.hud-title .main{font-size:18px;font-weight:800}
+.hud-title .sub{font-size:12px;color:var(--muted)}
+.stat-box{
+    min-width:92px;padding:10px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);text-align:center;
+}
+.stat-box .value{font-size:20px;font-weight:800}
+.stat-box .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+#instructionBox{
+    min-width:260px;padding:12px 18px;border-radius:16px;background:var(--accent-soft);border:1px solid rgba(61,213,176,.35);text-align:center;
+}
+#instructionTitle{font-size:12px;color:#c9fff0;text-transform:uppercase;letter-spacing:.08em}
+#instructionValue{font-size:22px;font-weight:800;color:#effff9;margin-top:2px}
+#playArea{position:fixed;inset:78px 0 0 0;overflow:hidden}
+.zone{
+    position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease, border-color .16s ease, background .16s ease;
+    border:3px solid #30374c;background:rgba(26,32,48,.86);
+}
+.zone .label{font-size:20px;font-weight:800;color:#d7deef;text-align:center;line-height:1.15;padding:8px}
+.zone .hold-ring{position:absolute;inset:-4px;border-radius:50%;pointer-events:none}
+.zone .hold-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.zone .hold-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.zone .hold-ring .bg{stroke:rgba(255,255,255,0.08)}
+.zone .hold-ring .fg{stroke:var(--success);transition:stroke-dashoffset 0.08s linear}
+.zone .zone-timer-bar{position:absolute;bottom:6px;left:15%;width:70%;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden}
+.zone .zone-timer-fill{height:100%;border-radius:2px;background:var(--active);width:100%;transition:width 0.2s linear}
+.zone.idle .zone-timer-bar{display:none}
+.zone.active .zone-timer-bar{display:block}
+.zone.idle{background:rgba(26,32,48,.9);border-color:#2d354b}
+.zone.active{background:rgba(255,209,102,.14);border-color:var(--active);transform:scale(1.03);box-shadow:0 0 0 8px rgba(255,209,102,.08), 0 0 36px rgba(255,209,102,.15)}
+.zone.hit{background:rgba(90,214,111,.22);border-color:var(--success);box-shadow:0 0 0 10px rgba(90,214,111,.08), 0 0 36px rgba(90,214,111,.14)}
+.zone.preview{border-style:dashed}
+.zone.miss{background:rgba(239,107,115,.15);border-color:var(--danger);box-shadow:0 0 0 8px rgba(239,107,115,.06)}
+.zone.disabled{background:rgba(17,21,31,.75);border-color:#202637;opacity:.55}
+
+#countdown{position:fixed;inset:0;z-index:200;background:rgba(8,11,17,.92);display:none;align-items:center;justify-content:center;flex-direction:column}
+#countdown.show{display:flex}
+#countdown .num{font-size:120px;font-weight:800;color:var(--accent);animation:countPop .4s ease}
+#countdown .txt{font-size:22px;color:var(--muted);margin-top:16px}
+@keyframes countPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+#restOverlay{position:fixed;inset:0;z-index:190;background:rgba(8,11,17,.88);display:none;align-items:center;justify-content:center;flex-direction:column}
+#restOverlay.show{display:flex}
+#restOverlay .rest-icon{font-size:72px;margin-bottom:20px;animation:restBreathe 3s ease-in-out infinite}
+#restOverlay .rest-text{font-size:28px;font-weight:700;color:var(--accent);margin-bottom:8px}
+#restOverlay .rest-sub{font-size:16px;color:var(--muted)}
+#restOverlay .rest-timer{font-size:48px;font-weight:800;color:var(--text);margin-top:16px}
+@keyframes restBreathe{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.1);opacity:1}}
+#overlayMessage{
+    position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);z-index:130;
+    font-size:58px;font-weight:800;opacity:0;pointer-events:none;
+}
+#overlayMessage.show{opacity:1;transition:opacity .15s ease}
+#overlayMessage.good{color:var(--success)}
+#overlayMessage.info{color:var(--info)}
+#overlayMessage.warn{color:var(--active)}
+
+#cursorRing,#cursorDot{
+    position:fixed;pointer-events:none;transform:translate(-50%,-50%);display:none;z-index:120;
+}
+#cursorRing{width:42px;height:42px;border-radius:50%;background:rgba(61,213,176,.14);border:2px solid rgba(61,213,176,.45)}
+#cursorDot{width:14px;height:14px;border-radius:50%;background:var(--accent)}
+#cursorRing.on,#cursorDot.on{display:block}
+
+#dirArrow{
+    position:fixed;pointer-events:none;z-index:115;display:none;
+    width:0;height:0;
+    border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:28px solid var(--active);
+    filter:drop-shadow(0 0 8px rgba(255,209,102,0.4));
+    transform-origin:center center;
+    transition:left 0.15s,top 0.15s;
+}
+#dirArrow.on{display:block}
+#dirLine{
+    position:fixed;pointer-events:none;z-index:114;display:none;
+}
+#dirLine.on{display:block}
+
+#debugPanel{
+    position:fixed;left:16px;bottom:16px;z-index:140;width:320px;
+    background:rgba(10,12,18,.86);border:1px solid var(--line);border-radius:16px;padding:14px;
+    font-size:12px;color:#ced5e7;backdrop-filter: blur(10px);
+}
+#debugPanel h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px}
+.debug-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.debug-item .k{color:var(--muted);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.debug-item .v{font-weight:700}
+
+#therapistPanel,#resultsScreen{
+    position:fixed;inset:0;background:rgba(6,8,13,.92);z-index:300;padding:26px;overflow:auto;
+}
+.editor, .results-panel{max-width:1120px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:24px}
+.editor-header,.results-header{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:20px}
+.editor-header h2,.results-header h2{font-size:26px;font-weight:800}
+.editor-header p,.results-header p{font-size:14px;color:var(--muted);line-height:1.6;max-width:780px}
+.editor-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.box{background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px}
+.box h3{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.row:last-child{border-bottom:none}
+.row label{font-size:13px;color:#d9e0f2;line-height:1.4;flex:1}
+.row input,.row select{
+    width:190px;background:#0b0f19;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;
+}
+.editor-actions,.results-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+.result-card{background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center}
+.result-card .value{font-size:30px;font-weight:800;margin-bottom:6px}
+.result-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+#sessionLog{margin-top:18px;background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px}
+#sessionLog h3{font-size:14px;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em}
+.log-list{display:grid;gap:10px}
+.log-item{padding:12px 14px;background:#0b1018;border:1px solid rgba(255,255,255,.04);border-radius:12px;font-size:13px;color:#d7def0}
+.log-item small{display:block;color:var(--muted);margin-top:4px}
+
+@media (max-width:980px){
+    .mode-grid,.editor-grid,.results-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:680px){
+    .mode-grid,.editor-grid,.results-grid{grid-template-columns:1fr}
+    .hero{flex-direction:column}
+    #debugPanel{width:auto;right:16px}
+}
+</style>
+</head>
+<body>
+
+<div id="countdown"><div class="num" id="countNum">3</div><div class="txt">Maak je klaar...</div></div>
+<div id="restOverlay"><div class="rest-icon">🧘</div><div class="rest-text">Rustpauze</div><div class="rest-sub">Even op adem komen</div><div class="rest-timer" id="restTimer">10</div></div>
+
+<div id="startScreen" class="screen">
+    <div class="panel">
+        <div class="hero">
+            <div>
+                <h1>Stapzone Therapeutische Training</h1>
+                <p>
+                    Rustige oefenapp voor interactieve vloertraining. De nadruk ligt op gecontroleerd stappen,
+                    balans, richtingsverplaatsing en vasthouden op een doelzone. Ontwikkeld voor inzet met LiDAR-touch of muisfallback.
+                </p>
+                <div class="badges">
+                    <span class="badge">ADCA / SCA gericht</span>
+                    <span class="badge">vaste layouts</span>
+                    <span class="badge">hold-modus</span>
+                    <span class="badge">therapeut presets</span>
+                    <span class="badge">begeleidermodus</span>
+                </div>
+            </div>
+            <button class="ghost-btn" onclick="toggleTherapistPanel()">Therapeut instellingen</button>
+        </div>
+
+        <div class="mode-grid" id="modeGrid" style="grid-template-columns:repeat(5,1fr)">
+            <div class="mode-card selected" data-mode="leftRight" onclick="selectMode('leftRight')">
+                <div class="mode-icon">↔️</div>
+                <div class="mode-name">Links / Rechts</div>
+                <div class="mode-desc">Rustige gewichtsverplaatsing tussen twee vaste zijdelingse zones.</div>
+                <div class="mode-meta">2 vaste zones<br>voorspelbare volgorde<br>geschikt als startniveau</div>
+            </div>
+            <div class="mode-card" data-mode="frontBack" onclick="selectMode('frontBack')">
+                <div class="mode-icon">↕️</div>
+                <div class="mode-name">Voor / Achter</div>
+                <div class="mode-desc">Stap gecontroleerd naar voren en terug binnen een vaste veilige afstand.</div>
+                <div class="mode-meta">2 vaste zones<br>stabiele richtingswissel<br>balansgericht</div>
+            </div>
+            <div class="mode-card" data-mode="cross" onclick="selectMode('cross')">
+                <div class="mode-icon">✚</div>
+                <div class="mode-name">Kruis 4 richtingen</div>
+                <div class="mode-desc">Oefening met links, rechts, voor en achter in een rustig kruispatroon.</div>
+                <div class="mode-meta">4 vaste zones<br>meer variatie<br>therapeutisch uitbreidbaar</div>
+            </div>
+            
+            <div class="mode-card" data-mode="centerCross" onclick="selectMode('centerCross')">
+                <div class="mode-icon">◎</div>
+                <div class="mode-name">Midden + 4 richtingen</div>
+                <div class="mode-desc">Werk vanuit een vaste middenpositie en stap gecontroleerd naar de richtingen.</div>
+                <div class="mode-meta">middenzone inbegrepen<br>links-rechts-voor-achter<br>geschikt voor opbouw</div>
+            </div>
+            <div class="mode-card" data-mode="hold" onclick="selectMode('hold')">
+                <div class="mode-icon">⏱️</div>
+                <div class="mode-name">Vasthouden</div>
+                <div class="mode-desc">Blijf gedurende een ingestelde tijd stabiel op de actieve zone staan.</div>
+                <div class="mode-meta">hold-tijd instelbaar<br>goed voor stabiliteit<br>geen haast nodig</div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <div class="info-strip">Sneltoetsen: <strong>Ctrl+T</strong> instellingen, <strong>D</strong> debug aan/uit, <strong>C</strong> cursor aan/uit, <strong>Esc</strong> stoppen.</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="ghost-btn" onclick="previewLayout()">Layout preview</button>
+                <button class="ghost-btn" onclick="startZoneTest()">Zone test</button>
+                <button class="start-btn" onclick="startSession()">Start oefening</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gameScreen" class="hidden">
+    <div class="hud">
+        <div class="hud-left">
+            <button class="ghost-btn" style="padding:10px 14px" onclick="stopSession()">Stop</button>
+            <div class="hud-title">
+                <div class="main" id="hudModeName">Links / Rechts</div>
+                <div class="sub" id="hudModeDesc">Rustige gewichtsverplaatsing</div>
+            </div>
+        </div>
+
+        <div id="instructionBox">
+            <div id="instructionTitle">Huidige opdracht</div>
+            <div id="instructionValue">Stap naar links</div>
+        </div>
+
+        <div class="hud-right">
+            <div class="stat-box"><div class="value" id="hudTime">Vrij</div><div class="label">Tijd</div></div>
+            <div class="stat-box"><div class="value" id="hudGood">0</div><div class="label">Goede stappen</div></div>
+            <div class="stat-box"><div class="value" id="hudAvg">0.00s</div><div class="label">Gem. reactie</div></div>
+        </div>
+    </div>
+
+    <div id="playArea"></div>
+    <div id="overlayMessage"></div>
+
+    <div id="cursorRing"></div>
+    <div id="cursorDot"></div>
+    <div id="dirArrow"></div>
+    <svg id="dirLine" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:114;display:none"><line id="dirLinePath" stroke="rgba(255,209,102,0.3)" stroke-width="2" stroke-dasharray="8,6"/></svg>
+
+    <div id="debugPanel" class="hidden">
+        <h3>Debug / Invoer</h3>
+        <div class="debug-grid">
+            <div class="debug-item"><span class="k">WebSocket</span><span class="v" id="dbgWs">-</span></div>
+            <div class="debug-item"><span class="k">Touch actief</span><span class="v" id="dbgTouch">-</span></div>
+            <div class="debug-item"><span class="k">Raw X</span><span class="v" id="dbgRawX">-</span></div>
+            <div class="debug-item"><span class="k">Raw Y</span><span class="v" id="dbgRawY">-</span></div>
+            <div class="debug-item"><span class="k">Smooth X</span><span class="v" id="dbgSmoothX">-</span></div>
+            <div class="debug-item"><span class="k">Smooth Y</span><span class="v" id="dbgSmoothY">-</span></div>
+            <div class="debug-item"><span class="k">Actieve zone</span><span class="v" id="dbgZone">-</span></div>
+            <div class="debug-item"><span class="k">Hold</span><span class="v" id="dbgHold">-</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="resultsScreen" class="hidden">
+    <div class="results-panel">
+        <div class="results-header">
+            <div>
+                <h2>Sessie afgerond</h2>
+                <p>Hier zie je de kerngegevens van de oefensessie. Deze versie legt de nadruk op goede stappen, reactietijd en stabiliteit. Niet op straf of streaks.</p>
+            </div>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card"><div class="value" id="resMode">-</div><div class="label">Modus</div></div>
+            <div class="result-card"><div class="value" id="resGood">0</div><div class="label">Goede stappen</div></div>
+            <div class="result-card"><div class="value" id="resMisses" style="color:var(--danger)">0</div><div class="label">Gemist</div></div>
+            <div class="result-card"><div class="value" id="resAvg">0.00s</div><div class="label">Gem. reactie</div></div>
+            <div class="result-card"><div class="value" id="resDuration">0s</div><div class="label">Sessieduur</div></div>
+        </div>
+
+        <div id="sessionLog">
+            <h3>Laatste sessies</h3>
+            <div class="log-list" id="logList"></div>
+        </div>
+
+        <div id="progressChart" style="margin-top:18px;background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px">
+            <h3 style="font-size:14px;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">Voortgang over sessies</h3>
+            <canvas id="chartCanvas" width="800" height="200" style="width:100%;height:200px;border-radius:8px"></canvas>
+        </div>
+
+        <div class="results-actions">
+            <button class="start-btn" onclick="restartFromResults()">Nogmaals starten</button>
+            <button class="ghost-btn" onclick="downloadLastSession()">Laatste sessie JSON</button>
+            <button class="ghost-btn" onclick="downloadLastSessionCsv()">Laatste sessie CSV</button>
+            <button class="ghost-btn" onclick="backToStart()">Terug naar start</button>
+            <button class="ghost-btn" onclick="backToIAMMenu()">Terug naar IAM Menu</button>
+        </div>
+    </div>
+</div>
+
+<div id="therapistPanel" class="hidden">
+    <div class="editor">
+        <div class="editor-header">
+            <div>
+                <h2>Therapeut instellingen</h2>
+                <p>
+                    Hier stel je de oefening in voor de cliënt. Deze versie gebruikt vaste layouts, optionele hold-tijd en rustiger feedback. Voor ADCA/SCA is dat nuttiger dan willekeurige kleine snelle doelen.
+                </p>
+            </div>
+            <button class="ghost-btn" onclick="toggleTherapistPanel()">Sluiten</button>
+        </div>
+
+        <div class="editor-grid">
+            <div class="box">
+                <h3>Algemeen</h3>
+                <div class="row"><label>Sessieduur (seconden)</label><input id="cfgDuration" type="number" min="20" max="900" step="10"></div>
+                <div class="row"><label>Pauze tussen doelen (seconden)</label><input id="cfgPause" type="number" min="0" max="10" step="0.1"></div>
+                <div class="row"><label>Zone diameter (pixels)</label><input id="cfgZoneSize" type="number" min="80" max="320" step="10"></div>
+                <div class="row"><label>Vaste zone afstand (pixels)</label><input id="cfgZoneDistance" type="number" min="120" max="520" step="10"></div>
+                <div class="row"><label>Volgorde</label>
+                    <select id="cfgSequenceType">
+                        <option value="alternating">Afwisselend</option>
+                        <option value="random">Willekeurig uit vaste set</option>
+                        <option value="pattern">Vast patroon</option>
+                    </select>
+                </div>
+                <div class="row"><label>Patroonreeks</label>
+                    <select id="cfgPatternSequence">
+                        <option value="lrSimple">Links → Rechts</option>
+                        <option value="fbSimple">Voor → Achter</option>
+                        <option value="centerLR">Midden → Links → Midden → Rechts</option>
+                        <option value="centerFB">Midden → Voor → Midden → Achter</option>
+                        <option value="crossRound">Midden → Links → Midden → Rechts → Midden → Voor → Midden → Achter</option>
+                        <option value="clockwise4">Links → Voor → Rechts → Achter</option>
+                    </select>
+                </div>
+                <div class="row"><label>Cursor tonen tijdens gebruik</label>
+                    <select id="cfgShowCursor"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Debugpaneel standaard</label>
+                    <select id="cfgDebug"><option value="false">Uit</option><option value="true">Aan</option></select>
+                </div>
+                <div class="row"><label>Cursor ook zichtbaar in setup</label>
+                    <select id="cfgCursorInSetup"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Detectie en feedback</h3>
+                <div class="row"><label>Contactduur voor hit (ms)</label><input id="cfgDwellMs" type="number" min="0" max="1500" step="50"></div>
+                <div class="row"><label>Hold-modus aan</label>
+                    <select id="cfgHoldEnabled"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+                <div class="row"><label>Hold-tijd (seconden)</label><input id="cfgHoldSeconds" type="number" min="0.2" max="10" step="0.1"></div>
+                <div class="row"><label>Positieve audio</label>
+                    <select id="cfgSoundPositive"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Foutaudio</label>
+                    <select id="cfgSoundNegative"><option value="false">Uit</option><option value="true">Aan</option></select>
+                </div>
+                <div class="row"><label>Toon gemiste doelen</label>
+                    <select id="cfgShowMisses"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+                <div class="row"><label>Smoothing factor</label><input id="cfgSmooth" type="number" min="0.1" max="0.98" step="0.01"></div>
+                <div class="row"><label>Touch time-out (ms)</label><input id="cfgTouchTimeout" type="number" min="50" max="2000" step="50"></div>
+                <div class="row"><label>Stem / tekstinstructie</label>
+                    <select id="cfgShowInstructions"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Presets en begeleider</h3>
+                <div class="row"><label>Profiel per niveau</label>
+                    <select id="cfgPreset">
+                        <option value="scaMild">SCA mild — Zeer rustig</option>
+                        <option value="scaBalance">SCA mild/matig — Balans & controle</option>
+                        <option value="scaDirection">SCA matig — Stappen met richting</option>
+                        <option value="scaHold">SCA matig — Vasthouden / stabiliteit</option>
+                        <option value="scaGuided">SCA matig/gevorderd — Begeleidermodus</option>
+                        <option value="scaLimited">SCA gevorderd — Beperkt mobiel</option>
+                        <option value="veryCalm">Algemeen — Zeer rustig</option>
+                        <option value="balance">Algemeen — Balans</option>
+                        <option value="leftRight">Algemeen — Links / Rechts</option>
+                        <option value="reaction">Algemeen — Reactie licht</option>
+                        <option value="hold">Algemeen — Vasthouden</option>
+                        <option value="custom">Aangepast</option>
+                    </select>
+                </div>
+                <div class="row"><label>Rustmodus zonder timer</label>
+                    <select id="cfgNoTimer"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+                <div class="row"><label>Begeleidermodus handmatig</label>
+                    <select id="cfgManualGuide"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+                <div class="row"><label>Zone test als veilige controle</label>
+                    <select id="cfgZoneTestMode"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+                <div class="row"><label>Inkomradius factor</label><input id="cfgEnterFactor" type="number" min="0.20" max="0.60" step="0.01"></div>
+                <div class="row"><label>Blijfradius factor</label><input id="cfgExitFactor" type="number" min="0.25" max="0.75" step="0.01"></div>
+                <div class="row"><label>X-as omkeren</label>
+                    <select id="cfgInvertX"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Y-as omkeren</label>
+                    <select id="cfgInvertY"><option value="false">Nee</option><option value="true">Ja</option></select>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Modi</h3>
+                <div class="row"><label>Startmodus</label>
+                    <select id="cfgDefaultMode">
+                        <option value="leftRight">Links / Rechts</option>
+                        <option value="frontBack">Voor / Achter</option>
+                        <option value="cross">Kruis 4 richtingen</option>
+                        <option value="centerCross">Midden + 4 richtingen</option>
+                        <option value="hold">Vasthouden</option>
+                    </select>
+                </div>
+                <div class="row"><label>Labels tonen in zones</label>
+                    <select id="cfgShowLabels"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Stapsgewijze preview op startscherm</label>
+                    <select id="cfgPreviewMode"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Patiënt Profielen</h3>
+                <div class="row"><label>Huidig profiel</label>
+                    <select id="cfgProfileSelect" onchange="loadProfile(this.value)">
+                        <option value="">-- Geen profiel --</option>
+                    </select>
+                </div>
+                <div class="row"><label>Profiel opslaan als</label><input id="cfgProfileName" type="text" placeholder="Naam patiënt"></div>
+                <div style="display:flex;gap:8px;margin-top:8px">
+                    <button class="ghost-btn" type="button" onclick="saveProfile()">Profiel opslaan</button>
+                    <button class="danger-btn" type="button" onclick="deleteProfile()">Profiel verwijderen</button>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Rustpauze</h3>
+                <div class="row"><label>Rustpauze inschakelen</label>
+                    <select id="cfgRestEnabled"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Rust na X stappen</label><input id="cfgRestAfterSteps" type="number" min="3" max="30" step="1"></div>
+                <div class="row"><label>Rustduur (seconden)</label><input id="cfgRestDurationSec" type="number" min="3" max="30" step="1"></div>
+            </div>
+
+            <div class="box">
+                <h3>Automatische moeilijkheid</h3>
+                <div class="row"><label>Auto-aanpassing</label>
+                    <select id="cfgAutoDifficulty"><option value="true">Aan</option><option value="false">Uit</option></select>
+                </div>
+                <div class="row"><label>Verhoging bij score boven (%)</label><input id="cfgAutoDiffUp" type="number" min="50" max="100" step="5"></div>
+                <div class="row"><label>Verlaging bij score onder (%)</label><input id="cfgAutoDiffDown" type="number" min="10" max="70" step="5"></div>
+            </div>
+
+            <div class="box">
+                <h3>Logging</h3>
+                <div class="row"><label>Cliëntnaam</label><input id="cfgPatientName" type="text" maxlength="80"></div>
+                <div class="row"><label>Sessies lokaal bewaren</label>
+                    <select id="cfgStoreSessions"><option value="true">Ja</option><option value="false">Nee</option></select>
+                </div>
+                <div class="row"><label>Maximaal aantal bewaarde sessies</label><input id="cfgMaxLogs" type="number" min="5" max="200" step="1"></div>
+                <div class="row"><label>CSV-export beschikbaar</label><input value="Ja" disabled></div>
+            </div>
+        </div>
+
+        <div class="box">
+                <h3>Handmatige bediening</h3>
+                <div class="row"><label>Volgende doel handmatig kiezen</label><span style="color:var(--muted);font-size:13px">Werkt als begeleidermodus aan staat</span></div>
+                <div class="editor-actions" style="margin-top:8px">
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('left')">Links</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('right')">Rechts</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('up')">Voor</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('down')">Achter</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('center')">Midden</button>
+                    <button class="ghost-btn" type="button" onclick="manualNextTarget()">Volgende</button>
+                </div>
+            </div>
+
+        <div class="editor-actions">
+            <button class="start-btn" onclick="saveSettings()">Instellingen opslaan</button>
+            <button class="ghost-btn" onclick="resetSettings()">Standaard herstellen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'iam_stapzone_therapeut_v6';
+const SESSION_LOG_KEY = 'iam_stapzone_sessions_v6';
+
+const defaultConfig = {
+    duration: 90,
+    pauseBetweenTargets: 0.8,
+    zoneSize: 170,
+    zoneDistance: 260,
+    sequenceType: 'alternating',
+    patternSequence: 'lrSimple',
+    showCursor: true,
+    cursorInSetup: true,
+    debugDefault: false,
+    dwellMs: 180,
+    holdEnabled: false,
+    holdSeconds: 1.5,
+    soundPositive: true,
+    soundNegative: false,
+    showMisses: false,
+    showInstructions: true,
+    smoothFactor: 0.82,
+    touchTimeoutMs: 420,
+    invertX: true,
+    invertY: false,
+    enterFactor: 0.42,
+    exitFactor: 0.48,
+    preset: 'scaMild',
+    noTimer: false,
+    manualGuide: false,
+    zoneTestMode: false,
+    defaultMode: 'leftRight',
+    showLabels: true,
+    previewMode: true,
+    patientName: '',
+    storeSessions: true,
+    maxLogs: 30,
+    restEnabled: true,
+    restAfterSteps: 8,
+    restDurationSec: 10,
+    autoDifficulty: true,
+    autoDiffThresholdUp: 80,
+    autoDiffThresholdDown: 50
+};
+
+const modeMeta = {
+    leftRight: {
+        name: 'Links / Rechts',
+        desc: 'Rustige gewichtsverplaatsing',
+        instructions: ['Stap naar links', 'Stap naar rechts'],
+        layout: ['left', 'right']
+    },
+    frontBack: {
+        name: 'Voor / Achter',
+        desc: 'Gecontroleerde verplaatsing voor en terug',
+        instructions: ['Stap naar voren', 'Stap naar achteren'],
+        layout: ['up', 'down']
+    },
+    cross: {
+        name: 'Kruis 4 richtingen',
+        desc: 'Links, rechts, voor en achter',
+        instructions: ['Stap naar links', 'Stap naar rechts', 'Stap naar voren', 'Stap naar achteren'],
+        layout: ['left', 'right', 'up', 'down']
+    },
+    centerCross: {
+        name: 'Midden + 4 richtingen',
+        desc: 'Terug naar midden en daarna naar een richting',
+        instructions: ['Ga naar midden', 'Stap naar links', 'Stap naar rechts', 'Stap naar voren', 'Stap naar achteren'],
+        layout: ['center', 'left', 'right', 'up', 'down']
+    },
+    hold: {
+        name: 'Vasthouden',
+        desc: 'Blijf stabiel op de actieve zone',
+        instructions: ['Blijf op de zone staan'],
+        layout: ['left', 'right', 'up', 'down']
+    }
+};
+
+const zoneLabels = {
+    left: 'Links',
+    right: 'Rechts',
+    up: 'Voor',
+    down: 'Achter',
+    center: 'Midden'
+};
+
+const patternSequences = {
+    lrSimple: {
+        name: 'Links → Rechts',
+        layoutMode: 'leftRight',
+        steps: ['left','right']
+    },
+    fbSimple: {
+        name: 'Voor → Achter',
+        layoutMode: 'frontBack',
+        steps: ['up','down']
+    },
+    centerLR: {
+        name: 'Midden → Links → Midden → Rechts',
+        layoutMode: 'centerCross',
+        steps: ['center','left','center','right']
+    },
+    centerFB: {
+        name: 'Midden → Voor → Midden → Achter',
+        layoutMode: 'centerCross',
+        steps: ['center','up','center','down']
+    },
+    crossRound: {
+        name: 'Midden → Links → Midden → Rechts → Midden → Voor → Midden → Achter',
+        layoutMode: 'centerCross',
+        steps: ['center','left','center','right','center','up','center','down']
+    },
+    clockwise4: {
+        name: 'Links → Voor → Rechts → Achter',
+        layoutMode: 'cross',
+        steps: ['left','up','right','down']
+    }
+};
+
+function getSelectedPattern(){
+    return patternSequences[config.patternSequence] || patternSequences.lrSimple;
+}
+
+function getEffectiveMode(mode){
+    if (config.sequenceType === 'pattern') {
+        return getSelectedPattern().layoutMode || mode;
+    }
+    return mode;
+}
+
+let config = loadSettings();
+let selectedMode = config.defaultMode || 'leftRight';
+
+let game = {
+    manualTargetId: null,
+    pointerInsideCurrent: false,
+    running: false,
+    timeLeft: 0,
+    goodSteps: 0,
+    totalTargets: 0,
+    averageReaction: 0,
+    reactions: [],
+    currentTargetId: null,
+    currentTargetStartedAt: 0,
+    holdStartedAt: 0,
+    holdProgressMs: 0,
+    sessionTimer: null,
+    nextTargetTimer: null,
+    zoneTimeout: null,
+    restTimer: null,
+    stepsSinceRest: 0,
+    activeZones: [],
+    zoneElements: new Map(),
+    sequenceIndex: 0,
+    previousTargetId: null,
+    currentSession: null,
+    lastSessionResult: null,
+    misses: 0
+};
+
+let ws = null;
+let wsOk = false;
+let touchData = {touches:[], count:0};
+let pointer = {
+    hasTouch: false,
+    x: 0,
+    y: 0,
+    rawX: 0,
+    rawY: 0,
+    smoothX: 0.5,
+    smoothY: 0.5,
+    initialized: false,
+    lastTouchTs: 0,
+    source: 'none'
+};
+
+let audioCtx = null;
+
+const els = {};
+
+window.addEventListener('load', init);
+
+function init(){
+    cacheEls();
+    applySettingsToForm();
+    selectMode(selectedMode);
+    updateDebugVisibility();
+    renderSessionLog();
+    refreshProfileDropdown();
+    connectWS();
+    requestAnimationFrame(pointerLoop);
+    attachEvents();
+}
+
+function cacheEls(){
+    ['startScreen','gameScreen','resultsScreen','therapistPanel','playArea','overlayMessage','cursorRing','cursorDot','hudModeName','hudModeDesc','instructionValue','hudTime','hudGood','hudAvg','debugPanel','dbgWs','dbgTouch','dbgRawX','dbgRawY','dbgSmoothX','dbgSmoothY','dbgZone','dbgHold','resMode','resGood','resAvg','resDuration','logList'].forEach(id => els[id] = document.getElementById(id));
+}
+
+function attachEvents(){
+    const presetEl = document.getElementById('cfgPreset');
+    if (presetEl) presetEl.addEventListener('change', () => { config.preset = presetEl.value; applyPreset(config.preset); applySettingsToForm(); });
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('click', onMouseClick);
+    document.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', () => {
+        if (game.running) buildLayout(false);
+    });
+}
+
+function onKeyDown(e){
+    if (e.ctrlKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        toggleTherapistPanel();
+        return;
+    }
+    if (e.key.toLowerCase() === 'd') {
+        config.debugDefault = !config.debugDefault;
+        updateDebugVisibility();
+        persistSettings();
+    }
+    if (e.key.toLowerCase() === 'c') {
+        config.showCursor = !config.showCursor;
+        persistSettings();
+    }
+    if (e.key === 'Escape') {
+        if (!els.therapistPanel.classList.contains('hidden')) {
+            toggleTherapistPanel(false);
+        } else if (game.running) {
+            stopSession();
+        }
+    }
+}
+
+function onMouseMove(e){
+    if (pointer.source === 'touch') return;
+    pointer.source = 'mouse';
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.hasTouch = true;
+    updateCursor();
+    if (game.running) evaluatePointer();
+}
+
+function onMouseClick(e){
+    if (!game.running || pointer.source === 'touch') return;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    evaluatePointer(true);
+}
+
+function loadSettings(){
+    try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {...defaultConfig};
+        const parsed = JSON.parse(raw);
+        return {...defaultConfig, ...parsed};
+    }catch(err){
+        return {...defaultConfig};
+    }
+}
+
+function persistSettings(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+}
+
+function applySettingsToForm(){
+    setVal('cfgDuration', config.duration);
+    setVal('cfgPause', config.pauseBetweenTargets);
+    setVal('cfgZoneSize', config.zoneSize);
+    setVal('cfgZoneDistance', config.zoneDistance);
+    setVal('cfgSequenceType', config.sequenceType);
+    setVal('cfgPatternSequence', config.patternSequence);
+    setVal('cfgShowCursor', String(config.showCursor));
+    setVal('cfgCursorInSetup', String(config.cursorInSetup));
+    setVal('cfgDebug', String(config.debugDefault));
+    setVal('cfgDwellMs', config.dwellMs);
+    setVal('cfgHoldEnabled', String(config.holdEnabled));
+    setVal('cfgHoldSeconds', config.holdSeconds);
+    setVal('cfgSoundPositive', String(config.soundPositive));
+    setVal('cfgSoundNegative', String(config.soundNegative));
+    setVal('cfgShowMisses', String(config.showMisses));
+    setVal('cfgShowInstructions', String(config.showInstructions));
+    setVal('cfgSmooth', config.smoothFactor);
+    setVal('cfgTouchTimeout', config.touchTimeoutMs);
+    setVal('cfgPreset', config.preset);
+    setVal('cfgNoTimer', String(config.noTimer));
+    setVal('cfgManualGuide', String(config.manualGuide));
+    setVal('cfgZoneTestMode', String(config.zoneTestMode));
+    setVal('cfgEnterFactor', config.enterFactor);
+    setVal('cfgExitFactor', config.exitFactor);
+    setVal('cfgInvertX', String(config.invertX));
+    setVal('cfgInvertY', String(config.invertY));
+    setVal('cfgDefaultMode', config.defaultMode);
+    setVal('cfgShowLabels', String(config.showLabels));
+    setVal('cfgPreviewMode', String(config.previewMode));
+    setVal('cfgPatientName', config.patientName || '');
+    setVal('cfgStoreSessions', String(config.storeSessions));
+    setVal('cfgMaxLogs', config.maxLogs);
+    setVal('cfgRestEnabled', String(config.restEnabled));
+    setVal('cfgRestAfterSteps', config.restAfterSteps);
+    setVal('cfgRestDurationSec', config.restDurationSec);
+    setVal('cfgAutoDifficulty', String(config.autoDifficulty));
+    setVal('cfgAutoDiffUp', config.autoDiffThresholdUp);
+    setVal('cfgAutoDiffDown', config.autoDiffThresholdDown);
+}
+
+function setVal(id, value){
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+}
+
+function saveSettings(){
+    config.duration = num('cfgDuration', defaultConfig.duration);
+    config.pauseBetweenTargets = num('cfgPause', defaultConfig.pauseBetweenTargets);
+    config.zoneSize = num('cfgZoneSize', defaultConfig.zoneSize);
+    config.zoneDistance = num('cfgZoneDistance', defaultConfig.zoneDistance);
+    config.sequenceType = document.getElementById('cfgSequenceType').value;
+    config.patternSequence = document.getElementById('cfgPatternSequence').value;
+    config.showCursor = boolVal('cfgShowCursor');
+    config.cursorInSetup = boolVal('cfgCursorInSetup');
+    config.debugDefault = boolVal('cfgDebug');
+    config.dwellMs = num('cfgDwellMs', defaultConfig.dwellMs);
+    config.holdEnabled = boolVal('cfgHoldEnabled');
+    config.holdSeconds = num('cfgHoldSeconds', defaultConfig.holdSeconds);
+    config.soundPositive = boolVal('cfgSoundPositive');
+    config.soundNegative = boolVal('cfgSoundNegative');
+    config.showMisses = boolVal('cfgShowMisses');
+    config.showInstructions = boolVal('cfgShowInstructions');
+    config.smoothFactor = num('cfgSmooth', defaultConfig.smoothFactor);
+    config.touchTimeoutMs = num('cfgTouchTimeout', defaultConfig.touchTimeoutMs);
+    config.preset = document.getElementById('cfgPreset').value;
+    config.noTimer = boolVal('cfgNoTimer');
+    config.manualGuide = boolVal('cfgManualGuide');
+    config.zoneTestMode = boolVal('cfgZoneTestMode');
+    config.enterFactor = num('cfgEnterFactor', defaultConfig.enterFactor);
+    config.exitFactor = num('cfgExitFactor', defaultConfig.exitFactor);
+    config.invertX = boolVal('cfgInvertX');
+    config.invertY = boolVal('cfgInvertY');
+    applyPreset(config.preset);
+    config.defaultMode = document.getElementById('cfgDefaultMode').value;
+    config.showLabels = boolVal('cfgShowLabels');
+    config.previewMode = boolVal('cfgPreviewMode');
+    config.patientName = document.getElementById('cfgPatientName').value.trim();
+    config.storeSessions = boolVal('cfgStoreSessions');
+    config.maxLogs = num('cfgMaxLogs', defaultConfig.maxLogs);
+    config.restEnabled = boolVal('cfgRestEnabled');
+    config.restAfterSteps = num('cfgRestAfterSteps', defaultConfig.restAfterSteps);
+    config.restDurationSec = num('cfgRestDurationSec', defaultConfig.restDurationSec);
+    config.autoDifficulty = boolVal('cfgAutoDifficulty');
+    config.autoDiffThresholdUp = num('cfgAutoDiffUp', defaultConfig.autoDiffThresholdUp);
+    config.autoDiffThresholdDown = num('cfgAutoDiffDown', defaultConfig.autoDiffThresholdDown);
+    selectedMode = config.defaultMode || selectedMode;
+    persistSettings();
+    selectMode(selectedMode);
+    updateDebugVisibility();
+    toggleTherapistPanel(false);
+}
+
+function resetSettings(){
+    config = {...defaultConfig};
+    persistSettings();
+    applySettingsToForm();
+    selectedMode = config.defaultMode;
+    selectMode(selectedMode);
+    updateDebugVisibility();
+}
+
+function num(id, fallback){
+    const v = parseFloat(document.getElementById(id).value);
+    return Number.isFinite(v) ? v : fallback;
+}
+
+function boolVal(id){
+    return document.getElementById(id).value === 'true';
+}
+
+function toggleTherapistPanel(force){
+    const open = typeof force === 'boolean' ? force : els.therapistPanel.classList.contains('hidden');
+    els.therapistPanel.classList.toggle('hidden', !open);
+}
+
+function selectMode(mode){
+    selectedMode = mode;
+    document.querySelectorAll('.mode-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.mode === mode);
+    });
+}
+
+function previewLayout(){
+    toggleScreen('game');
+    buildLayout(true);
+    showOverlay('Layout preview', 'info', 900);
+    setTimeout(() => {
+        if (!game.running) toggleScreen('start');
+    }, 900);
+}
+
+function toggleScreen(which){
+    els.startScreen.classList.toggle('hidden', which !== 'start');
+    els.gameScreen.classList.toggle('hidden', which !== 'game');
+    els.resultsScreen.classList.toggle('hidden', which !== 'results');
+}
+
+function buildLayout(previewOnly){
+    els.playArea.innerHTML = '';
+    game.zoneElements.clear();
+    game.activeZones = [];
+
+    const meta = modeMeta[getEffectiveMode(selectedMode)] || modeMeta[selectedMode];
+    const ids = meta.layout;
+    const rect = els.playArea.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const d = config.zoneDistance;
+    const size = config.zoneSize;
+
+    const positions = {
+        left:  {x: cx - d, y: cy},
+        right: {x: cx + d, y: cy},
+        up:    {x: cx, y: cy - d},
+        down:  {x: cx, y: cy + d},
+        center:{x: cx, y: cy}
+    };
+
+    ids.forEach(id => {
+        const zone = document.createElement('div');
+        zone.className = 'zone ' + (previewOnly ? 'preview' : 'idle');
+        zone.dataset.zoneId = id;
+        zone.style.width = size + 'px';
+        zone.style.height = size + 'px';
+        zone.style.left = (positions[id].x - size/2) + 'px';
+        zone.style.top = (positions[id].y - size/2) + 'px';
+        zone.innerHTML = `<div class="hold-ring"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="46"/><circle class="fg" cx="50" cy="50" r="46" stroke-dasharray="289" stroke-dashoffset="289"/></svg></div><div class="zone-timer-bar"><div class="zone-timer-fill"></div></div><div class="label">${config.showLabels ? zoneLabels[id] : ''}</div>`;
+        els.playArea.appendChild(zone);
+        game.zoneElements.set(id, {
+            id,
+            el: zone,
+            x: positions[id].x,
+            y: positions[id].y,
+            size
+        });
+        game.activeZones.push(id);
+    });
+}
+
+function startSession(){
+    // Show countdown first
+    toggleScreen('game');
+    buildLayout(true);
+    showCountdown(function() {
+        actualStartSession();
+    });
+}
+
+function showCountdown(callback) {
+    var cdEl = document.getElementById('countdown');
+    var numEl = document.getElementById('countNum');
+    cdEl.classList.add('show');
+    var count = 3;
+    numEl.textContent = count;
+    var iv = setInterval(function() {
+        count--;
+        if (count > 0) {
+            numEl.textContent = count;
+            numEl.style.animation = 'none';
+            void numEl.offsetWidth;
+            numEl.style.animation = 'countPop .4s ease';
+            playTone(440 + (3 - count) * 110, 0.1, 'sine', 0.06);
+        } else if (count === 0) {
+            numEl.textContent = 'Start!';
+            numEl.style.color = 'var(--success)';
+            numEl.style.animation = 'none';
+            void numEl.offsetWidth;
+            numEl.style.animation = 'countPop .4s ease';
+            playTone(880, 0.15, 'sine', 0.08);
+        } else {
+            clearInterval(iv);
+            cdEl.classList.remove('show');
+            numEl.style.color = 'var(--accent)';
+            if (callback) callback();
+        }
+    }, 1000);
+}
+
+function actualStartSession(){
+    toggleScreen('game');
+    game.running = true;
+    game.timeLeft = config.noTimer ? 0 : config.duration;
+    game.goodSteps = 0;
+    game.totalTargets = 0;
+    game.reactions = [];
+    game.averageReaction = 0;
+    game.currentTargetId = null;
+    game.currentTargetStartedAt = 0;
+    game.holdStartedAt = 0;
+    game.holdProgressMs = 0;
+    game.sequenceIndex = 0;
+    game.previousTargetId = null;
+    game.manualTargetId = null;
+    game.stepsSinceRest = 0;
+    game.pointerInsideCurrent = false;
+    game.misses = 0;
+    game.currentSession = {
+        startedAt: new Date().toISOString(),
+        patientName: config.patientName || '',
+        mode: getEffectiveMode(selectedMode),
+        modeName: config.sequenceType === 'pattern' ? ('Patroon · ' + getSelectedPattern().name) : modeMeta[getEffectiveMode(selectedMode)].name,
+        durationTarget: config.duration,
+        pauseBetweenTargets: config.pauseBetweenTargets,
+        zoneSize: config.zoneSize,
+        zoneDistance: config.zoneDistance,
+        holdEnabled: config.holdEnabled || getEffectiveMode(selectedMode) === 'hold',
+        holdSeconds: getEffectiveMode(selectedMode) === 'hold' ? config.holdSeconds : (config.holdEnabled ? config.holdSeconds : 0),
+        dwellMs: config.dwellMs,
+        sequenceType: config.sequenceType,
+        patternSequence: config.patternSequence,
+        patternSequenceName: getSelectedPattern().name,
+        orientation: {
+            invertX: config.invertX,
+            invertY: config.invertY
+        },
+        noTimer: config.noTimer,
+        manualGuide: config.manualGuide,
+        zoneTestMode: config.zoneTestMode,
+        enterFactor: config.enterFactor,
+        exitFactor: config.exitFactor,
+        steps: []
+    };
+
+    const effectiveMode = getEffectiveMode(selectedMode);
+    els.hudModeName.textContent = config.sequenceType === 'pattern' ? ('Patroon · ' + getSelectedPattern().name) : modeMeta[effectiveMode].name;
+    els.hudModeDesc.textContent = config.sequenceType === 'pattern' ? 'Vaste oefenreeks op vaste posities' : modeMeta[effectiveMode].desc;
+    document.getElementById('instructionBox').style.display = config.showInstructions ? 'block' : 'none';
+    updateHud();
+    buildLayout(false);
+    nextTarget(true);
+    if (!config.noTimer) startTimers(); else clearInterval(game.sessionTimer);
+    playStartSound();
+}
+
+function startTimers(){
+    clearInterval(game.sessionTimer);
+    game.sessionTimer = setInterval(() => {
+        game.timeLeft -= 1;
+        updateHud();
+        if (game.timeLeft <= 0) {
+            finishSession();
+        }
+    }, 1000);
+}
+
+function stopSession(){
+    if (!game.running) {
+        toggleScreen('start');
+        return;
+    }
+    finishSession();
+}
+
+function finishSession(){
+    clearInterval(game.sessionTimer);
+    clearTimeout(game.nextTargetTimer);
+    clearTimeout(game.zoneTimeout);
+    clearInterval(game.restTimer);
+    document.getElementById('restOverlay').classList.remove('show');
+    game.running = false;
+
+    const elapsed = config.noTimer ? Math.round((Date.now() - new Date(game.currentSession.startedAt).getTime())/1000) : config.duration - Math.max(0, game.timeLeft);
+    const result = {
+        ...game.currentSession,
+        endedAt: new Date().toISOString(),
+        actualDuration: elapsed,
+        goodSteps: game.goodSteps,
+        averageReaction: getAverageReaction(),
+        misses: game.misses
+    };
+    game.lastSessionResult = result;
+
+    if (config.storeSessions) saveSessionLog(result);
+    fillResults(result);
+
+    // Auto-difficulty adjustment
+    if (config.autoDifficulty && game.totalTargets > 0) {
+        var successRate = Math.round((game.goodSteps / game.totalTargets) * 100);
+        var adjusted = false;
+        if (successRate >= config.autoDiffThresholdUp) {
+            // Make harder: smaller zones, shorter time
+            config.zoneSize = Math.max(60, config.zoneSize - 15);
+            config.dwellMs = Math.max(80, config.dwellMs - 20);
+            config.pauseBetweenTargets = Math.max(0.3, config.pauseBetweenTargets - 0.1);
+            adjusted = true;
+            showOverlay('Moeilijkheid verhoogd! ⬆', 'info', 1200);
+        } else if (successRate <= config.autoDiffThresholdDown) {
+            // Make easier: bigger zones, longer time
+            config.zoneSize = Math.min(300, config.zoneSize + 15);
+            config.dwellMs = Math.min(500, config.dwellMs + 20);
+            config.pauseBetweenTargets = Math.min(3, config.pauseBetweenTargets + 0.1);
+            adjusted = true;
+            showOverlay('Moeilijkheid verlaagd ⬇', 'warn', 1200);
+        }
+        if (adjusted) persistSettings();
+    }
+
+    renderSessionLog();
+    toggleScreen('results');
+}
+
+function fillResults(result){
+    els.resMode.textContent = result.modeName;
+    els.resGood.textContent = String(result.goodSteps);
+    els.resAvg.textContent = result.averageReaction.toFixed(2) + 's';
+    els.resDuration.textContent = result.actualDuration + 's';
+    // Show misses if element exists
+    var resMiss = document.getElementById('resMisses');
+    if (resMiss) resMiss.textContent = String(result.misses || 0);
+}
+
+function restartFromResults(){
+    toggleScreen('start');
+    startSession();
+}
+
+function backToStart(){
+    toggleScreen('start');
+}
+
+function backToIAMMenu(){
+    if (window.electronAPI && window.electronAPI.openMenu) {
+        window.electronAPI.openMenu();
+    } else {
+        window.history.back();
+    }
+}
+
+function nextTarget(immediate){
+    clearTimeout(game.nextTargetTimer);
+    resetZoneStates();
+    game.holdStartedAt = 0;
+    game.holdProgressMs = 0;
+
+    const ids = game.activeZones;
+    if (!ids.length) return;
+
+    let nextId;
+    if (config.manualGuide && game.manualTargetId) {
+        nextId = game.manualTargetId;
+        game.manualTargetId = null;
+    } else if (config.sequenceType === 'pattern') {
+        const pattern = getSelectedPattern();
+        const validSteps = pattern.steps.filter(id => ids.includes(id));
+        const steps = validSteps.length ? validSteps : ids;
+        nextId = steps[game.sequenceIndex % steps.length];
+        game.sequenceIndex += 1;
+    } else if (config.sequenceType === 'alternating') {
+        nextId = ids[game.sequenceIndex % ids.length];
+        game.sequenceIndex += 1;
+    } else {
+        do {
+            nextId = ids[Math.floor(Math.random() * ids.length)];
+        } while (ids.length > 1 && nextId === game.previousTargetId);
+    }
+
+    const activate = () => {
+        game.currentTargetId = nextId;
+        game.previousTargetId = nextId;
+        game.currentTargetStartedAt = performance.now();
+        game.totalTargets += 1;
+        const zone = game.zoneElements.get(nextId);
+        zone.el.className = 'zone active';
+        // Reset hold ring
+        const ring = zone.el.querySelector('.hold-ring .fg');
+        if (ring) ring.style.strokeDashoffset = 289;
+        const instruction = getEffectiveMode(selectedMode) === 'hold'
+            ? `Blijf op ${zoneLabels[nextId].toLowerCase()} staan`
+            : `Stap naar ${zoneLabels[nextId].toLowerCase()}`;
+        els.instructionValue.textContent = instruction;
+        els.dbgZone.textContent = zoneLabels[nextId];
+
+        // Zone timeout — auto-miss after duration+5 sec (generous for SCA patients)
+        clearTimeout(game.zoneTimeout);
+        if (!config.noTimer && !config.manualGuide) {
+            var timeoutSec = Math.max(5, config.duration / Math.max(1, config.zoneSize / 50));
+            game.zoneTimeout = setTimeout(function() {
+                if (game.running && game.currentTargetId === nextId) {
+                    game.misses += 1;
+                    zone.el.className = 'zone miss';
+                    if (config.showMisses) showOverlay('Gemist', 'warn', 400);
+                    if (config.soundNegative) playNegativeSound();
+                    game.currentSession.steps.push({
+                        at: new Date().toISOString(),
+                        zoneId: nextId,
+                        reaction: -1,
+                        missed: true
+                    });
+                    game.currentTargetId = null;
+                    setTimeout(function() { nextTarget(false); }, 300);
+                }
+            }, timeoutSec * 1000);
+        }
+    };
+
+    if (immediate) activate();
+    else game.nextTargetTimer = setTimeout(activate, config.pauseBetweenTargets * 1000);
+}
+
+function resetZoneStates(){
+    game.zoneElements.forEach(z => z.el.className = 'zone idle');
+}
+
+function evaluatePointer(forceImmediate){
+    if (!game.running || !game.currentTargetId) return;
+    const zone = game.zoneElements.get(game.currentTargetId);
+    if (!zone) return;
+
+    const dx = pointer.x - zone.x;
+    const dy = pointer.y - zone.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const entryRadius = zone.size * config.enterFactor;
+    const exitRadius = zone.size * config.exitFactor;
+    const wasInside = !!game.pointerInsideCurrent;
+    const inside = wasInside ? dist <= exitRadius : dist <= entryRadius;
+    game.pointerInsideCurrent = inside;
+
+    const holdNeeded = getEffectiveMode(selectedMode) === 'hold' || config.holdEnabled;
+    const requiredMs = holdNeeded ? config.holdSeconds * 1000 : config.dwellMs;
+
+    if (inside) {
+        if (!game.holdStartedAt) game.holdStartedAt = performance.now();
+        game.holdProgressMs = performance.now() - game.holdStartedAt;
+        els.dbgHold.textContent = `${Math.min(game.holdProgressMs, requiredMs).toFixed(0)} / ${requiredMs}`;
+
+        // Update hold ring visual
+        const progress = Math.min(1, game.holdProgressMs / requiredMs);
+        const ring = zone.el.querySelector('.hold-ring .fg');
+        if (ring) {
+            const circumference = 289;
+            ring.style.strokeDashoffset = circumference * (1 - progress);
+        }
+
+        if (forceImmediate || game.holdProgressMs >= requiredMs) {
+            registerSuccess(zone.id);
+        }
+    } else {
+        game.holdStartedAt = 0;
+        game.holdProgressMs = 0;
+        game.pointerInsideCurrent = false;
+        els.dbgHold.textContent = `0 / ${requiredMs}`;
+
+        // Reset hold ring
+        const ring = zone.el.querySelector('.hold-ring .fg');
+        if (ring) ring.style.strokeDashoffset = 289;
+    }
+}
+
+function registerSuccess(zoneId){
+    const reaction = (performance.now() - game.currentTargetStartedAt) / 1000;
+    game.goodSteps += 1;
+    game.reactions.push(reaction);
+    game.averageReaction = getAverageReaction();
+    updateHud();
+
+    const zone = game.zoneElements.get(zoneId);
+    if (zone) zone.el.className = 'zone hit';
+
+    game.currentSession.steps.push({
+        at: new Date().toISOString(),
+        zoneId,
+        reaction: Number(reaction.toFixed(3)),
+        holdApplied: getEffectiveMode(selectedMode) === 'hold' || config.holdEnabled
+    });
+
+    showOverlay('Goed', 'good', 320);
+    playPositiveSound();
+
+    // Encouragement messages at streak milestones
+    var streakCount = game.goodSteps;
+    var encouragements = {
+        3: 'Goed bezig! 💪',
+        5: 'Lekker tempo!',
+        8: 'Netjes! Ga zo door!',
+        10: 'Fantastisch! 🌟',
+        15: 'Geweldig! Wat een focus!',
+        20: 'Ongelooflijk! Top prestatie! 🏆'
+    };
+    if (encouragements[streakCount]) {
+        setTimeout(function() {
+            showOverlay(encouragements[streakCount], 'info', 800);
+        }, 400);
+    }
+    game.currentTargetId = null;
+    game.holdStartedAt = 0;
+    game.holdProgressMs = 0;
+
+    // Rest pause check
+    game.stepsSinceRest += 1;
+    if (config.restEnabled && game.stepsSinceRest >= config.restAfterSteps) {
+        game.stepsSinceRest = 0;
+        startRestPause(function() {
+            nextTarget(false);
+        });
+        return;
+    }
+
+    nextTarget(false);
+}
+
+function updateHud(){
+    els.hudTime.textContent = config.noTimer ? 'Vrij' : formatTime(game.timeLeft);
+    els.hudGood.textContent = String(game.goodSteps);
+    els.hudAvg.textContent = getAverageReaction().toFixed(2) + 's';
+}
+
+function formatTime(total){
+    const safe = Math.max(0, total);
+    const m = Math.floor(safe / 60);
+    const s = safe % 60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function getAverageReaction(){
+    if (!game.reactions.length) return 0;
+    return game.reactions.reduce((a,b)=>a+b,0) / game.reactions.length;
+}
+
+function showOverlay(text, type, duration){
+    els.overlayMessage.textContent = text;
+    els.overlayMessage.className = '';
+    els.overlayMessage.id = 'overlayMessage';
+    els.overlayMessage.classList.add('show', type);
+    setTimeout(() => {
+        els.overlayMessage.className = '';
+        els.overlayMessage.id = 'overlayMessage';
+    }, duration || 400);
+}
+
+function playPositiveSound(){
+    if (!config.soundPositive) return;
+    // Different tones per direction for proprioceptive feedback
+    var zoneId = game.previousTargetId || 'center';
+    var freqs = {
+        left:   [380, 480],
+        right:  [520, 680],
+        up:     [440, 660],
+        down:   [330, 420],
+        center: [440, 560]
+    };
+    var f = freqs[zoneId] || freqs.center;
+    playTone(f[0], 0.08, 'sine', 0.08);
+    setTimeout(function() { playTone(f[1], 0.11, 'sine', 0.07); }, 70);
+}
+
+function playNegativeSound(){
+    if (!config.soundNegative) return;
+    playTone(180, 0.18, 'triangle', 0.05);
+}
+
+function playStartSound(){
+    playTone(350, 0.08, 'sine', 0.06);
+    setTimeout(() => playTone(500, 0.08, 'sine', 0.06), 70);
+}
+
+function playTone(freq, duration, type, volume){
+    try{
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(volume || 0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }catch(err){}
+}
+
+function startRestPause(callback) {
+    var restEl = document.getElementById('restOverlay');
+    var timerEl = document.getElementById('restTimer');
+    var remaining = config.restDurationSec;
+    restEl.classList.add('show');
+    timerEl.textContent = remaining;
+    // Pause session timer
+    clearInterval(game.sessionTimer);
+    playTone(330, 0.2, 'sine', 0.04);
+
+    game.restTimer = setInterval(function() {
+        remaining--;
+        timerEl.textContent = remaining;
+        if (remaining <= 0) {
+            clearInterval(game.restTimer);
+            restEl.classList.remove('show');
+            playTone(440, 0.1, 'sine', 0.06);
+            setTimeout(function() { playTone(660, 0.1, 'sine', 0.06); }, 100);
+            // Resume session timer
+            if (!config.noTimer) startTimers();
+            if (callback) callback();
+        }
+    }, 1000);
+}
+
+function connectWS(){
+    try {
+        ws = new WebSocket('ws://localhost:8765');
+        ws.onopen = () => { wsOk = true; updateDebugPanel(); };
+        ws.onmessage = e => {
+            try {
+                touchData = JSON.parse(e.data);
+                pointer.lastTouchTs = performance.now();
+            } catch(err) {}
+        };
+        ws.onclose = () => {
+            wsOk = false;
+            updateDebugPanel();
+            setTimeout(connectWS, 2000);
+        };
+        ws.onerror = () => { wsOk = false; updateDebugPanel(); };
+    } catch(err) {
+        wsOk = false;
+        setTimeout(connectWS, 2000);
+    }
+}
+
+function pointerLoop(){
+    updateTouchPointer();
+    updateCursor();
+    if (game.running && pointer.hasTouch) evaluatePointer(false);
+    if (game.running) updateZoneTimers();
+    updateDebugPanel();
+    requestAnimationFrame(pointerLoop);
+}
+
+function updateZoneTimers(){
+    if (!game.currentTargetId || !game.currentTargetStartedAt) return;
+    var zone = game.zoneElements.get(game.currentTargetId);
+    if (!zone) return;
+    var elapsed = (performance.now() - game.currentTargetStartedAt) / 1000;
+    var maxTime = config.noTimer ? 999 : Math.max(5, config.duration / Math.max(1, config.zoneSize / 50));
+    var remaining = Math.max(0, 1 - elapsed / maxTime);
+    var fill = zone.el.querySelector('.zone-timer-fill');
+    if (fill) {
+        fill.style.width = (remaining * 100) + '%';
+        if (remaining < 0.3) fill.style.background = 'var(--danger)';
+        else if (remaining < 0.6) fill.style.background = 'var(--active)';
+        else fill.style.background = 'var(--success)';
+    }
+}
+
+function updateTouchPointer(){
+    if (touchData && touchData.count > 0 && Array.isArray(touchData.touches) && touchData.touches.length > 0) {
+        const t = chooseBestTouch(touchData.touches);
+        const sourceX = clamp01(t.x);
+        const sourceY = clamp01(t.y);
+
+        let mappedX = sourceX;
+        let mappedY = sourceY;
+
+        if (config.invertX) mappedX = 1 - mappedX;
+        if (config.invertY) mappedY = 1 - mappedY;
+
+        pointer.rawX = sourceX;
+        pointer.rawY = sourceY;
+
+        if (!pointer.initialized || pointer.source !== 'touch') {
+            pointer.smoothX = mappedX;
+            pointer.smoothY = mappedY;
+            pointer.initialized = true;
+        } else {
+            pointer.smoothX = pointer.smoothX * config.smoothFactor + mappedX * (1 - config.smoothFactor);
+            pointer.smoothY = pointer.smoothY * config.smoothFactor + mappedY * (1 - config.smoothFactor);
+        }
+        pointer.x = pointer.smoothX * window.innerWidth;
+        pointer.y = pointer.smoothY * window.innerHeight;
+        pointer.source = 'touch';
+        pointer.hasTouch = true;
+        pointer.lastTouchTs = performance.now();
+    } else if (pointer.source === 'touch') {
+        if (performance.now() - pointer.lastTouchTs > config.touchTimeoutMs) {
+            pointer.hasTouch = false;
+            pointer.initialized = false;
+        }
+    }
+}
+
+function chooseBestTouch(touches){
+    if (!touches || !touches.length) return {x:0.5,y:0.5};
+    let best = touches[0];
+    let bestScore = Number.POSITIVE_INFINITY;
+    const prevX = pointer.initialized ? pointer.smoothX : 0.5;
+    const prevY = pointer.initialized ? pointer.smoothY : 0.5;
+    touches.forEach(t => {
+        let tx = clamp01(t.x);
+        let ty = clamp01(t.y);
+        if (config.invertX) tx = 1 - tx;
+        if (config.invertY) ty = 1 - ty;
+        const score = Math.abs(tx - prevX) + Math.abs(ty - prevY);
+        if (score < bestScore) {
+            best = t;
+            bestScore = score;
+        }
+    });
+    return best;
+}
+
+function clamp01(v){
+    return Math.max(0, Math.min(1, Number(v) || 0));
+}
+
+function remapClamped(value, inMin, inMax, outMin, outMax){
+    const safeMin = Number.isFinite(inMin) ? inMin : 0;
+    const safeMax = Number.isFinite(inMax) ? inMax : 1;
+    if (safeMax <= safeMin) return outMin;
+    const n = clamp01((value - safeMin) / (safeMax - safeMin));
+    return outMin + (outMax - outMin) * n;
+}
+
+function updateCursor(){
+    const allowInThisView = game.running || config.cursorInSetup || config.debugDefault || !els.therapistPanel.classList.contains('hidden');
+    const show = config.showCursor && pointer.hasTouch && allowInThisView;
+    els.cursorRing.classList.toggle('on', show);
+    els.cursorDot.classList.toggle('on', show);
+    if (!show) {
+        document.getElementById('dirArrow').classList.remove('on');
+        document.getElementById('dirLine').classList.remove('on');
+        return;
+    }
+    els.cursorRing.style.left = pointer.x + 'px';
+    els.cursorRing.style.top = pointer.y + 'px';
+    els.cursorDot.style.left = pointer.x + 'px';
+    els.cursorDot.style.top = pointer.y + 'px';
+
+    // Direction arrow pointing from cursor to active zone
+    var arrow = document.getElementById('dirArrow');
+    var line = document.getElementById('dirLine');
+    var linePath = document.getElementById('dirLinePath');
+    if (game.running && game.currentTargetId && pointer.hasTouch) {
+        var zone = game.zoneElements.get(game.currentTargetId);
+        if (zone) {
+            var dx = zone.x - pointer.x;
+            var dy = zone.y - pointer.y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist > zone.size * 0.6) {
+                var angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+                var arrowDist = 40;
+                var ax = pointer.x + (dx / dist) * arrowDist;
+                var ay = pointer.y + (dy / dist) * arrowDist;
+                arrow.style.left = ax + 'px';
+                arrow.style.top = ay + 'px';
+                arrow.style.transform = 'translate(-50%,-50%) rotate(' + angle + 'deg)';
+                arrow.classList.add('on');
+                linePath.setAttribute('x1', pointer.x);
+                linePath.setAttribute('y1', pointer.y);
+                linePath.setAttribute('x2', zone.x);
+                linePath.setAttribute('y2', zone.y);
+                line.classList.add('on');
+            } else {
+                arrow.classList.remove('on');
+                line.classList.remove('on');
+            }
+        }
+    } else {
+        arrow.classList.remove('on');
+        line.classList.remove('on');
+    }
+}
+
+function updateDebugVisibility(){
+    els.debugPanel.classList.toggle('hidden', !config.debugDefault);
+}
+
+function updateDebugPanel(){
+    els.dbgWs.textContent = wsOk ? 'Verbonden' : 'Niet verbonden';
+    els.dbgTouch.textContent = pointer.hasTouch ? 'Ja (' + pointer.source + ')' : 'Nee';
+    els.dbgRawX.textContent = pointer.rawX.toFixed(3);
+    els.dbgRawY.textContent = pointer.rawY.toFixed(3);
+    els.dbgSmoothX.textContent = pointer.smoothX.toFixed(3);
+    els.dbgSmoothY.textContent = pointer.smoothY.toFixed(3);
+    els.dbgZone.textContent = game.currentTargetId ? zoneLabels[game.currentTargetId] : '-';
+}
+
+function saveSessionLog(result){
+    const logs = loadSessionLogs();
+    logs.unshift(result);
+    localStorage.setItem(SESSION_LOG_KEY, JSON.stringify(logs.slice(0, config.maxLogs)));
+}
+
+function loadSessionLogs(){
+    try{
+        return JSON.parse(localStorage.getItem(SESSION_LOG_KEY) || '[]');
+    } catch(err){
+        return [];
+    }
+}
+
+function renderSessionLog(){
+    const logs = loadSessionLogs();
+    if (!logs.length) {
+        els.logList.innerHTML = '<div class="log-item">Nog geen sessies opgeslagen.</div>';
+        renderProgressChart([]);
+        return;
+    }
+    els.logList.innerHTML = logs.slice(0, 8).map(log => `
+        <div class="log-item">
+            <strong>${escapeHtml(log.modeName || log.mode || '-')}</strong> · ${log.goodSteps || 0} goed · ${log.misses || 0} gemist · ${(log.averageReaction || 0).toFixed(2)}s gemiddeld
+            <small>${formatDate(log.startedAt)}${log.patientName ? ' · ' + escapeHtml(log.patientName) : ''}${log.sequenceType === 'pattern' ? ' · patroon' : ''}${log.patternSequenceName ? ' · ' + escapeHtml(log.patternSequenceName) : ''}${log.noTimer ? ' · vrij' : ''}${log.manualGuide ? ' · handmatig' : ''}</small>
+        </div>
+    `).join('');
+    renderProgressChart(logs);
+}
+
+function renderProgressChart(logs) {
+    var canvas = document.getElementById('chartCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * 2;
+    var h = canvas.height = 400;
+    ctx.clearRect(0, 0, w, h);
+
+    var data = logs.slice(0, 15).reverse();
+    if (data.length < 2) {
+        ctx.fillStyle = '#95a0b8';
+        ctx.font = '24px Manrope, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Minimaal 2 sessies nodig voor grafiek', w/2, h/2);
+        return;
+    }
+
+    var pad = {top: 40, right: 40, bottom: 50, left: 60};
+    var gw = w - pad.left - pad.right;
+    var gh = h - pad.top - pad.bottom;
+
+    // Get data ranges
+    var maxSteps = 0, maxReact = 0;
+    data.forEach(function(d) {
+        if ((d.goodSteps || 0) > maxSteps) maxSteps = d.goodSteps;
+        if ((d.averageReaction || 0) > maxReact) maxReact = d.averageReaction;
+    });
+    maxSteps = Math.max(5, maxSteps * 1.2);
+    maxReact = Math.max(1, maxReact * 1.2);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+        var gy = pad.top + gh * (i / 4);
+        ctx.beginPath(); ctx.moveTo(pad.left, gy); ctx.lineTo(pad.left + gw, gy); ctx.stroke();
+    }
+
+    // Draw steps line (green)
+    ctx.strokeStyle = '#5ad66f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    data.forEach(function(d, i) {
+        var x = pad.left + (i / (data.length - 1)) * gw;
+        var y = pad.top + gh - ((d.goodSteps || 0) / maxSteps) * gh;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Draw dots for steps
+    data.forEach(function(d, i) {
+        var x = pad.left + (i / (data.length - 1)) * gw;
+        var y = pad.top + gh - ((d.goodSteps || 0) / maxSteps) * gh;
+        ctx.fillStyle = '#5ad66f';
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Draw reaction time line (amber)
+    ctx.strokeStyle = '#ffd166';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    data.forEach(function(d, i) {
+        var x = pad.left + (i / (data.length - 1)) * gw;
+        var y = pad.top + gh - ((d.averageReaction || 0) / maxReact) * gh;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Draw dots for reaction
+    data.forEach(function(d, i) {
+        var x = pad.left + (i / (data.length - 1)) * gw;
+        var y = pad.top + gh - ((d.averageReaction || 0) / maxReact) * gh;
+        ctx.fillStyle = '#ffd166';
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Labels
+    ctx.fillStyle = '#95a0b8';
+    ctx.font = '20px Manrope, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sessies', w / 2, h - 8);
+
+    // Legend
+    ctx.fillStyle = '#5ad66f';
+    ctx.fillRect(pad.left, 8, 16, 16);
+    ctx.fillStyle = '#d7def0';
+    ctx.textAlign = 'left';
+    ctx.font = '18px Manrope, sans-serif';
+    ctx.fillText('Goede stappen', pad.left + 22, 22);
+
+    ctx.fillStyle = '#ffd166';
+    ctx.fillRect(pad.left + 180, 8, 16, 16);
+    ctx.fillStyle = '#d7def0';
+    ctx.fillText('Gem. reactietijd (s)', pad.left + 202, 22);
+}
+
+function downloadLastSession(){
+    if (!game.lastSessionResult) return;
+    const blob = new Blob([JSON.stringify(game.lastSessionResult, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stapzone_sessie_' + new Date().toISOString().replace(/[:.]/g,'-') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+
+function applyPreset(name){
+    if (!name || name === 'custom') return;
+    const presets = {
+        scaMild: {
+            duration: 90,
+            pauseBetweenTargets: 0.9,
+            zoneSize: 210,
+            zoneDistance: 220,
+            dwellMs: 100,
+            holdEnabled: false,
+            holdSeconds: 1.5,
+            defaultMode: 'leftRight',
+            sequenceType: 'pattern',
+            patternSequence: 'lrSimple',
+            manualGuide: false,
+            noTimer: false,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.86,
+            enterFactor: 0.42,
+            exitFactor: 0.48
+        },
+        scaBalance: {
+            duration: 120,
+            pauseBetweenTargets: 1.0,
+            zoneSize: 220,
+            zoneDistance: 210,
+            dwellMs: 150,
+            holdEnabled: true,
+            holdSeconds: 1.0,
+            defaultMode: 'centerCross',
+            sequenceType: 'pattern',
+            patternSequence: 'centerLR',
+            manualGuide: false,
+            noTimer: false,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.88,
+            enterFactor: 0.42,
+            exitFactor: 0.48
+        },
+        scaDirection: {
+            duration: 90,
+            pauseBetweenTargets: 1.2,
+            zoneSize: 230,
+            zoneDistance: 190,
+            dwellMs: 180,
+            holdEnabled: false,
+            holdSeconds: 0.5,
+            defaultMode: 'centerCross',
+            sequenceType: 'pattern',
+            patternSequence: 'centerFB',
+            manualGuide: false,
+            noTimer: false,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.90,
+            enterFactor: 0.43,
+            exitFactor: 0.49
+        },
+        scaHold: {
+            duration: 75,
+            pauseBetweenTargets: 1.0,
+            zoneSize: 250,
+            zoneDistance: 200,
+            dwellMs: 250,
+            holdEnabled: true,
+            holdSeconds: 2.0,
+            defaultMode: 'hold',
+            sequenceType: 'pattern',
+            patternSequence: 'centerLR',
+            manualGuide: false,
+            noTimer: false,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.92,
+            enterFactor: 0.44,
+            exitFactor: 0.50
+        },
+        scaGuided: {
+            duration: 120,
+            pauseBetweenTargets: 1.2,
+            zoneSize: 270,
+            zoneDistance: 180,
+            dwellMs: 220,
+            holdEnabled: false,
+            holdSeconds: 1.5,
+            defaultMode: 'centerCross',
+            sequenceType: 'pattern',
+            patternSequence: 'centerLR',
+            manualGuide: true,
+            noTimer: true,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.92,
+            enterFactor: 0.45,
+            exitFactor: 0.52
+        },
+        scaLimited: {
+            duration: 60,
+            pauseBetweenTargets: 1.5,
+            zoneSize: 290,
+            zoneDistance: 150,
+            dwellMs: 300,
+            holdEnabled: true,
+            holdSeconds: 1.5,
+            defaultMode: 'leftRight',
+            sequenceType: 'pattern',
+            patternSequence: 'lrSimple',
+            manualGuide: true,
+            noTimer: true,
+            zoneTestMode: false,
+            showMisses: false,
+            soundPositive: true,
+            soundNegative: false,
+            smoothFactor: 0.94,
+            enterFactor: 0.46,
+            exitFactor: 0.54
+        },
+        veryCalm: {duration:90,pauseBetweenTargets:1.0,zoneSize:190,zoneDistance:220,dwellMs:220,holdEnabled:false,holdSeconds:1.5,defaultMode:'leftRight',sequenceType:'alternating',manualGuide:false,noTimer:false,zoneTestMode:false},
+        balance: {duration:120,pauseBetweenTargets:1.1,zoneSize:180,zoneDistance:220,dwellMs:220,holdEnabled:true,holdSeconds:1.5,defaultMode:'centerCross',sequenceType:'alternating',manualGuide:false,noTimer:false,zoneTestMode:false},
+        leftRight: {duration:90,pauseBetweenTargets:0.8,zoneSize:180,zoneDistance:240,dwellMs:180,holdEnabled:false,holdSeconds:1.2,defaultMode:'leftRight',sequenceType:'alternating',manualGuide:false,noTimer:false,zoneTestMode:false},
+        reaction: {duration:75,pauseBetweenTargets:0.5,zoneSize:160,zoneDistance:250,dwellMs:140,holdEnabled:false,holdSeconds:1.0,defaultMode:'cross',sequenceType:'random',manualGuide:false,noTimer:false,zoneTestMode:false},
+        hold: {duration:90,pauseBetweenTargets:0.8,zoneSize:180,zoneDistance:220,dwellMs:160,holdEnabled:true,holdSeconds:2.0,defaultMode:'hold',sequenceType:'alternating',manualGuide:false,noTimer:false,zoneTestMode:false}
+    };
+    Object.assign(config, presets[name] || {});
+}
+
+function manualSelectTarget(id){
+    game.manualTargetId = id;
+    if (game.running && config.manualGuide) nextTarget(true);
+}
+
+function manualNextTarget(){
+    if (game.running && config.manualGuide) nextTarget(true);
+}
+
+function startZoneTest(){
+    config.zoneTestMode = true;
+    if (!['centerCross','cross','leftRight','frontBack'].includes(selectedMode)) selectedMode = 'centerCross';
+    startSession();
+    showOverlay('Zone test actief', 'info', 900);
+}
+
+function downloadLastSessionCsv(){
+    if (!game.lastSessionResult) return;
+    const r = game.lastSessionResult;
+    const rows = [
+        ['datum','client','modus','goede_stappen','gemist','gem_reactie_s','sessieduur_s','hold_s','pauze_s','volgorde','handmatig','zonder_timer','zone_test'],
+        [r.startedAt || '', r.patientName || '', r.modeName || r.mode || '', r.goodSteps || 0, r.misses || 0, (r.averageReaction || 0).toFixed(3), r.actualDuration || 0, r.holdSeconds || 0, r.pauseBetweenTargets || 0, (r.sequenceType === 'pattern' ? ('patroon: ' + (r.patternSequenceName || r.patternSequence || '')) : (r.sequenceType || '')), r.manualGuide ? 'ja':'nee', r.noTimer ? 'ja':'nee', r.zoneTestMode ? 'ja':'nee']
+    ];
+    const csv = rows.map(row => row.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stapzone_sessie_' + new Date().toISOString().replace(/[:.]/g,'-') + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+var PROFILES_KEY = 'iam_stapzone_profiles_v8';
+
+function loadProfiles() {
+    try { return JSON.parse(localStorage.getItem(PROFILES_KEY) || '{}'); }
+    catch(e) { return {}; }
+}
+
+function saveProfiles(profiles) {
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+}
+
+function refreshProfileDropdown() {
+    var sel = document.getElementById('cfgProfileSelect');
+    if (!sel) return;
+    var profiles = loadProfiles();
+    var current = config.patientName || '';
+    sel.innerHTML = '<option value="">-- Geen profiel --</option>';
+    Object.keys(profiles).sort().forEach(function(name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (name === current) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function saveProfile() {
+    var nameEl = document.getElementById('cfgProfileName');
+    var name = (nameEl.value || '').trim();
+    if (!name) { nameEl.focus(); return; }
+    var profiles = loadProfiles();
+    profiles[name] = JSON.parse(JSON.stringify(config));
+    profiles[name].patientName = name;
+    saveProfiles(profiles);
+    config.patientName = name;
+    persistSettings();
+    refreshProfileDropdown();
+    showOverlay('Profiel opgeslagen', 'info', 600);
+}
+
+function loadProfile(name) {
+    if (!name) return;
+    var profiles = loadProfiles();
+    if (!profiles[name]) return;
+    Object.assign(config, profiles[name]);
+    config.patientName = name;
+    persistSettings();
+    applySettingsToForm();
+    document.getElementById('cfgProfileName').value = name;
+    selectedMode = config.defaultMode || selectedMode;
+    selectMode(selectedMode);
+}
+
+function deleteProfile() {
+    var nameEl = document.getElementById('cfgProfileName');
+    var name = (nameEl.value || document.getElementById('cfgProfileSelect').value || '').trim();
+    if (!name) return;
+    if (!confirm('Profiel "' + name + '" verwijderen?')) return;
+    var profiles = loadProfiles();
+    delete profiles[name];
+    saveProfiles(profiles);
+    refreshProfileDropdown();
+    showOverlay('Profiel verwijderd', 'warn', 600);
+}
+
+function formatDate(iso){
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return d.toLocaleString('nl-NL');
+}
+
+function escapeHtml(s){
+    return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+}
+</script>
+</body>
+</html>

@@ -1,1 +1,1 @@
-IAM-GAME-MENU/deps/Install/PCL-1.11.1-Build-Release-AllInOne-msvc2019-win64.exe filter=lfs diff=lfs merge=lfs -text
+legacy/iam-game-menu/deps/Install/PCL-1.11.1-Build-Release-AllInOne-msvc2019-win64.exe filter=lfs diff=lfs merge=lfs -text
