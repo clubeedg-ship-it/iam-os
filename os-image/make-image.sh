@@ -123,7 +123,7 @@ sudo tee "$WORKDIR/root/boot/efi/loader/entries/iam-os.conf" >/dev/null <<EOF
 title    IAM-OS $VERSION
 linux    /$KERNEL
 initrd   /$INITRD
-options  root=PARTUUID=$ROOT_PARTUUID ro quiet
+options  root=PARTUUID=$ROOT_PARTUUID ro console=tty0 console=ttyS0,115200n8 systemd.show_status=yes
 EOF
 
 note "syncing and unmounting"
