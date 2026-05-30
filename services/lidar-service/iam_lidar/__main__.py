@@ -15,12 +15,14 @@ import sys
 import time
 from pathlib import Path
 
+from iam_lidar.calibration_watcher import CalibrationWatcher
 from iam_lidar.config import Config, ConfigError, load_config
 from iam_lidar.connection import ConnectionManager
+from iam_lidar.detection.calibration import Calibration
 from iam_lidar.drivers.registry import create_driver
 from iam_lidar.frames import Scan, TouchFrame
-from iam_lidar.logging_setup import configure_logging
 from iam_lidar.health import HealthReporter
+from iam_lidar.logging_setup import configure_logging
 from iam_lidar.output.frame_sink import FrameSink
 from iam_lidar.output.status_writer import StatusSnapshot, StatusWriter
 from iam_lidar.pipeline import Pipeline
@@ -79,6 +81,14 @@ class _Service:
     def pipeline(self) -> Pipeline:
         """The detection pipeline, for callers that install calibration."""
         return self._pipeline
+
+    def install_calibration(
+        self, calibration: Calibration | None, name: str
+    ) -> None:
+        """Install a new calibration matrix and record the active preset name."""
+        if calibration is not None:
+            self._pipeline.set_calibration(calibration)
+        self._active_preset = name
 
     def on_scan(self, scan: Scan) -> None:
         """Capture the baseline from the first scan, then track touches."""
@@ -144,6 +154,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     status_writer.attach()
     status_writer.start_heartbeat()
+
+    calibration_watcher: CalibrationWatcher | None = None
+    if config.calibration.presets_dir and config.calibration.active_pointer_path:
+        calibration_watcher = CalibrationWatcher(
+            presets_dir=config.calibration.presets_dir,
+            active_pointer_path=config.calibration.active_pointer_path,
+            on_change=service.install_calibration,
+            poll_interval_s=config.calibration.poll_interval_s,
+        )
+        calibration_watcher.load_once()
+        calibration_watcher.start()
+
     manager = ConnectionManager(
         driver_factory=lambda: create_driver(driver_name, config.device),
         on_scan=service.on_scan,
@@ -162,6 +184,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         manager.run()
     finally:
+        if calibration_watcher is not None:
+            calibration_watcher.stop()
         status_writer.stop_heartbeat()
         status_writer.detach()
         if sink is not None:
