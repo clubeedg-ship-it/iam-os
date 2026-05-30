@@ -132,6 +132,24 @@ class OutputConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class StatusConfig:
+    """Where lidar-service publishes its health and tracking snapshot.
+
+    The launcher's web-server reads this file. Setting ``file_path`` to an
+    empty string disables status reporting entirely.
+    """
+
+    file_path: str
+    heartbeat_interval_s: float
+
+    def __post_init__(self) -> None:
+        """Reject a non-positive heartbeat interval."""
+        _require_positive(
+            self.heartbeat_interval_s, "[status].heartbeat_interval_s"
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class LoggingConfig:
     """Logging behaviour."""
 
@@ -154,6 +172,7 @@ class Config:
     connection: ConnectionConfig
     detection: DetectionConfig
     output: OutputConfig
+    status: StatusConfig
     logging: LoggingConfig
 
 
@@ -162,6 +181,7 @@ _SECTIONS: dict[str, type] = {
     "connection": ConnectionConfig,
     "detection": DetectionConfig,
     "output": OutputConfig,
+    "status": StatusConfig,
     "logging": LoggingConfig,
 }
 

@@ -49,6 +49,15 @@ track_tolerance_mm = 150
 # Unix domain socket the touch-bridge connects to for touch frames.
 socket_path = "/run/iam-os/lidar.sock"
 
+[status]
+# Where lidar-service writes its health and tracking snapshot. The
+# launcher's web-server reads this file to power its status view. Set
+# to an empty string to disable status reporting.
+file_path = "/run/iam-os/lidar-status.json"
+# Heartbeat interval, seconds: the file is also refreshed at this rate so
+# a stuck service is visible as a stale `updated_at` timestamp.
+heartbeat_interval_s = 1.0
+
 [logging]
 # Log level: DEBUG, INFO, WARNING, or ERROR.
 level = "INFO"

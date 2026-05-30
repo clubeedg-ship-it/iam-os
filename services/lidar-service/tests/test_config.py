@@ -33,6 +33,10 @@ track_tolerance_mm = 150
 [output]
 socket_path = "/run/iam-os/lidar.sock"
 
+[status]
+file_path = "/run/iam-os/lidar-status.json"
+heartbeat_interval_s = 1.0
+
 [logging]
 level = "INFO"
 """
