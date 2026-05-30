@@ -78,14 +78,14 @@ mmdebstrap \
     --architectures="$ARCH" \
     --variant=minbase \
     --include="$(IFS=,; echo "${PACKAGES[*]}")" \
-    --customize-hook="mkdir -p \"\$1/opt/iam-os\" \"\$1/usr/share/iam-os\"" \
-    --customize-hook="copy-in $REPO_ROOT/services \"\$1/opt/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/games \"\$1/usr/share/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/launcher/dist \"\$1/usr/share/iam-os/launcher\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/units \"\$1/etc/systemd/system/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/tmpfiles.d \"\$1/etc/tmpfiles.d/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/udev \"\$1/etc/udev/rules.d/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/chromium-kiosk.sh \"\$1/opt/iam-os/os-image/\"" \
+    --customize-hook="chroot \"\$1\" mkdir -p /opt/iam-os /usr/share/iam-os /etc/systemd/system/iam-os /etc/tmpfiles.d/iam-os /etc/udev/rules.d/iam-os /opt/iam-os/os-image" \
+    --customize-hook="copy-in $REPO_ROOT/services /opt/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/games /usr/share/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/launcher/dist /usr/share/iam-os/launcher" \
+    --customize-hook="copy-in $REPO_ROOT/os-image/units /etc/systemd/system/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/os-image/tmpfiles.d /etc/tmpfiles.d/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/os-image/udev /etc/udev/rules.d/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/os-image/chromium-kiosk.sh /opt/iam-os/os-image/" \
     --customize-hook="chroot \"\$1\" /bin/bash -euxo pipefail -c '
         getent group iam-os >/dev/null || groupadd --system iam-os
         id iam-os >/dev/null 2>&1 || useradd --system --gid iam-os --groups dialout,tty,video --create-home --home-dir /var/lib/iam-os --shell /usr/sbin/nologin iam-os
