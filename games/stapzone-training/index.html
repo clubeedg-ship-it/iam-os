@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IAM - Stapzone Therapeutische Training V8 Pro</title>
+<title>IAM - Stapzone Therapeutic Training V8 Pro</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 :root{
@@ -72,7 +72,8 @@ button,input,select{font:inherit}
     border-color:var(--accent);
     box-shadow:0 16px 36px rgba(0,0,0,.28);
 }
-.mode-icon{font-size:34px;margin-bottom:14px}
+.mode-icon{display:flex;align-items:center;justify-content:center;height:40px;margin-bottom:14px;color:var(--accent)}
+.mode-icon svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .mode-name{font-size:18px;font-weight:800;margin-bottom:6px}
 .mode-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px}
 .mode-meta{font-size:12px;color:#b8c2d9;line-height:1.7}
@@ -137,7 +138,8 @@ button,input,select{font:inherit}
 
 #restOverlay{position:fixed;inset:0;z-index:190;background:rgba(8,11,17,.88);display:none;align-items:center;justify-content:center;flex-direction:column}
 #restOverlay.show{display:flex}
-#restOverlay .rest-icon{font-size:72px;margin-bottom:20px;animation:restBreathe 3s ease-in-out infinite}
+#restOverlay .rest-icon{display:flex;align-items:center;justify-content:center;width:96px;height:96px;margin-bottom:20px;color:var(--accent);animation:restBreathe 3s ease-in-out infinite}
+#restOverlay .rest-icon svg{width:72px;height:72px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #restOverlay .rest-text{font-size:28px;font-weight:700;color:var(--accent);margin-bottom:8px}
 #restOverlay .rest-sub{font-size:16px;color:var(--muted)}
 #restOverlay .rest-timer{font-size:48px;font-weight:800;color:var(--text);margin-top:16px}
@@ -221,69 +223,69 @@ button,input,select{font:inherit}
 </head>
 <body>
 
-<div id="countdown"><div class="num" id="countNum">3</div><div class="txt">Maak je klaar...</div></div>
-<div id="restOverlay"><div class="rest-icon">🧘</div><div class="rest-text">Rustpauze</div><div class="rest-sub">Even op adem komen</div><div class="rest-timer" id="restTimer">10</div></div>
+<div id="countdown"><div class="num" id="countNum">3</div><div class="txt">Get ready...</div></div>
+<div id="restOverlay"><div class="rest-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></div><div class="rest-text">Rest break</div><div class="rest-sub">Catch your breath</div><div class="rest-timer" id="restTimer">10</div></div>
 
 <div id="startScreen" class="screen">
     <div class="panel">
         <div class="hero">
             <div>
-                <h1>Stapzone Therapeutische Training</h1>
+                <h1>Stapzone Therapeutic Training</h1>
                 <p>
-                    Rustige oefenapp voor interactieve vloertraining. De nadruk ligt op gecontroleerd stappen,
-                    balans, richtingsverplaatsing en vasthouden op een doelzone. Ontwikkeld voor inzet met LiDAR-touch of muisfallback.
+                    Calm exercise app for interactive floor training. Focuses on controlled stepping,
+                    balance, directional movement, and holding on a target zone. Built for use with LiDAR touch or mouse fallback.
                 </p>
                 <div class="badges">
-                    <span class="badge">ADCA / SCA gericht</span>
-                    <span class="badge">vaste layouts</span>
-                    <span class="badge">hold-modus</span>
-                    <span class="badge">therapeut presets</span>
-                    <span class="badge">begeleidermodus</span>
+                    <span class="badge">ADCA / SCA focused</span>
+                    <span class="badge">fixed layouts</span>
+                    <span class="badge">hold mode</span>
+                    <span class="badge">therapist presets</span>
+                    <span class="badge">assistant mode</span>
                 </div>
             </div>
-            <button class="ghost-btn" onclick="toggleTherapistPanel()">Therapeut instellingen</button>
+            <button class="ghost-btn" onclick="toggleTherapistPanel()">Therapist settings</button>
         </div>
 
         <div class="mode-grid" id="modeGrid" style="grid-template-columns:repeat(5,1fr)">
             <div class="mode-card selected" data-mode="leftRight" onclick="selectMode('leftRight')">
-                <div class="mode-icon">↔️</div>
-                <div class="mode-name">Links / Rechts</div>
-                <div class="mode-desc">Rustige gewichtsverplaatsing tussen twee vaste zijdelingse zones.</div>
-                <div class="mode-meta">2 vaste zones<br>voorspelbare volgorde<br>geschikt als startniveau</div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16"/><path d="M7 9l-3 3 3 3"/><path d="M17 9l3 3-3 3"/></svg></div>
+                <div class="mode-name">Left / Right</div>
+                <div class="mode-desc">Calm weight shift between two fixed side zones.</div>
+                <div class="mode-meta">2 fixed zones<br>predictable order<br>good starting level</div>
             </div>
             <div class="mode-card" data-mode="frontBack" onclick="selectMode('frontBack')">
-                <div class="mode-icon">↕️</div>
-                <div class="mode-name">Voor / Achter</div>
-                <div class="mode-desc">Stap gecontroleerd naar voren en terug binnen een vaste veilige afstand.</div>
-                <div class="mode-meta">2 vaste zones<br>stabiele richtingswissel<br>balansgericht</div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16"/><path d="M9 7l3-3 3 3"/><path d="M9 17l3 3 3-3"/></svg></div>
+                <div class="mode-name">Front / Back</div>
+                <div class="mode-desc">Step controlled forward and back within a fixed safe distance.</div>
+                <div class="mode-meta">2 fixed zones<br>stable direction change<br>balance-oriented</div>
             </div>
             <div class="mode-card" data-mode="cross" onclick="selectMode('cross')">
-                <div class="mode-icon">✚</div>
-                <div class="mode-name">Kruis 4 richtingen</div>
-                <div class="mode-desc">Oefening met links, rechts, voor en achter in een rustig kruispatroon.</div>
-                <div class="mode-meta">4 vaste zones<br>meer variatie<br>therapeutisch uitbreidbaar</div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M3 12h18"/><path d="M6 6l-3 3 3 3"/><path d="M18 6l3 3-3 3"/><path d="M6 18l3 3 3-3"/><path d="M18 18l-3 3-3-3"/></svg></div>
+                <div class="mode-name">Cross 4 directions</div>
+                <div class="mode-desc">Exercise with left, right, front and back in a calm cross pattern.</div>
+                <div class="mode-meta">4 fixed zones<br>more variation<br>therapeutically extensible</div>
             </div>
-            
+
             <div class="mode-card" data-mode="centerCross" onclick="selectMode('centerCross')">
-                <div class="mode-icon">◎</div>
-                <div class="mode-name">Midden + 4 richtingen</div>
-                <div class="mode-desc">Werk vanuit een vaste middenpositie en stap gecontroleerd naar de richtingen.</div>
-                <div class="mode-meta">middenzone inbegrepen<br>links-rechts-voor-achter<br>geschikt voor opbouw</div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg></div>
+                <div class="mode-name">Center + 4 directions</div>
+                <div class="mode-desc">Work from a fixed center position and step controlled to the directions.</div>
+                <div class="mode-meta">center zone included<br>left-right-front-back<br>good for build-up</div>
             </div>
             <div class="mode-card" data-mode="hold" onclick="selectMode('hold')">
-                <div class="mode-icon">⏱️</div>
-                <div class="mode-name">Vasthouden</div>
-                <div class="mode-desc">Blijf gedurende een ingestelde tijd stabiel op de actieve zone staan.</div>
-                <div class="mode-meta">hold-tijd instelbaar<br>goed voor stabiliteit<br>geen haast nodig</div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 3h6"/><path d="M12 3v2"/></svg></div>
+                <div class="mode-name">Hold</div>
+                <div class="mode-desc">Stay steady on the active zone for the configured time.</div>
+                <div class="mode-meta">hold time adjustable<br>good for stability<br>no rush needed</div>
             </div>
         </div>
 
         <div class="bottom-actions">
-            <div class="info-strip">Sneltoetsen: <strong>Ctrl+T</strong> instellingen, <strong>D</strong> debug aan/uit, <strong>C</strong> cursor aan/uit, <strong>Esc</strong> stoppen.</div>
+            <div class="info-strip">Shortcuts: <strong>Ctrl+T</strong> settings, <strong>D</strong> debug on/off, <strong>C</strong> cursor on/off, <strong>Esc</strong> stop.</div>
             <div style="display:flex;gap:12px;flex-wrap:wrap">
                 <button class="ghost-btn" onclick="previewLayout()">Layout preview</button>
                 <button class="ghost-btn" onclick="startZoneTest()">Zone test</button>
-                <button class="start-btn" onclick="startSession()">Start oefening</button>
+                <button class="start-btn" onclick="startSession()">Start exercise</button>
             </div>
         </div>
     </div>
@@ -294,20 +296,20 @@ button,input,select{font:inherit}
         <div class="hud-left">
             <button class="ghost-btn" style="padding:10px 14px" onclick="stopSession()">Stop</button>
             <div class="hud-title">
-                <div class="main" id="hudModeName">Links / Rechts</div>
-                <div class="sub" id="hudModeDesc">Rustige gewichtsverplaatsing</div>
+                <div class="main" id="hudModeName">Left / Right</div>
+                <div class="sub" id="hudModeDesc">Calm weight shift</div>
             </div>
         </div>
 
         <div id="instructionBox">
-            <div id="instructionTitle">Huidige opdracht</div>
-            <div id="instructionValue">Stap naar links</div>
+            <div id="instructionTitle">Current task</div>
+            <div id="instructionValue">Step left</div>
         </div>
 
         <div class="hud-right">
-            <div class="stat-box"><div class="value" id="hudTime">Vrij</div><div class="label">Tijd</div></div>
-            <div class="stat-box"><div class="value" id="hudGood">0</div><div class="label">Goede stappen</div></div>
-            <div class="stat-box"><div class="value" id="hudAvg">0.00s</div><div class="label">Gem. reactie</div></div>
+            <div class="stat-box"><div class="value" id="hudTime">Free</div><div class="label">Time</div></div>
+            <div class="stat-box"><div class="value" id="hudGood">0</div><div class="label">Good steps</div></div>
+            <div class="stat-box"><div class="value" id="hudAvg">0.00s</div><div class="label">Avg. reaction</div></div>
         </div>
     </div>
 
@@ -320,15 +322,15 @@ button,input,select{font:inherit}
     <svg id="dirLine" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:114;display:none"><line id="dirLinePath" stroke="rgba(255,209,102,0.3)" stroke-width="2" stroke-dasharray="8,6"/></svg>
 
     <div id="debugPanel" class="hidden">
-        <h3>Debug / Invoer</h3>
+        <h3>Debug / Input</h3>
         <div class="debug-grid">
             <div class="debug-item"><span class="k">WebSocket</span><span class="v" id="dbgWs">-</span></div>
-            <div class="debug-item"><span class="k">Touch actief</span><span class="v" id="dbgTouch">-</span></div>
+            <div class="debug-item"><span class="k">Touch active</span><span class="v" id="dbgTouch">-</span></div>
             <div class="debug-item"><span class="k">Raw X</span><span class="v" id="dbgRawX">-</span></div>
             <div class="debug-item"><span class="k">Raw Y</span><span class="v" id="dbgRawY">-</span></div>
             <div class="debug-item"><span class="k">Smooth X</span><span class="v" id="dbgSmoothX">-</span></div>
             <div class="debug-item"><span class="k">Smooth Y</span><span class="v" id="dbgSmoothY">-</span></div>
-            <div class="debug-item"><span class="k">Actieve zone</span><span class="v" id="dbgZone">-</span></div>
+            <div class="debug-item"><span class="k">Active zone</span><span class="v" id="dbgZone">-</span></div>
             <div class="debug-item"><span class="k">Hold</span><span class="v" id="dbgHold">-</span></div>
         </div>
     </div>
@@ -338,35 +340,35 @@ button,input,select{font:inherit}
     <div class="results-panel">
         <div class="results-header">
             <div>
-                <h2>Sessie afgerond</h2>
-                <p>Hier zie je de kerngegevens van de oefensessie. Deze versie legt de nadruk op goede stappen, reactietijd en stabiliteit. Niet op straf of streaks.</p>
+                <h2>Session complete</h2>
+                <p>Core data from the exercise session. This version emphasises good steps, reaction time, and stability — not punishment or streaks.</p>
             </div>
         </div>
 
         <div class="results-grid">
-            <div class="result-card"><div class="value" id="resMode">-</div><div class="label">Modus</div></div>
-            <div class="result-card"><div class="value" id="resGood">0</div><div class="label">Goede stappen</div></div>
-            <div class="result-card"><div class="value" id="resMisses" style="color:var(--danger)">0</div><div class="label">Gemist</div></div>
-            <div class="result-card"><div class="value" id="resAvg">0.00s</div><div class="label">Gem. reactie</div></div>
-            <div class="result-card"><div class="value" id="resDuration">0s</div><div class="label">Sessieduur</div></div>
+            <div class="result-card"><div class="value" id="resMode">-</div><div class="label">Mode</div></div>
+            <div class="result-card"><div class="value" id="resGood">0</div><div class="label">Good steps</div></div>
+            <div class="result-card"><div class="value" id="resMisses" style="color:var(--danger)">0</div><div class="label">Missed</div></div>
+            <div class="result-card"><div class="value" id="resAvg">0.00s</div><div class="label">Avg. reaction</div></div>
+            <div class="result-card"><div class="value" id="resDuration">0s</div><div class="label">Session duration</div></div>
         </div>
 
         <div id="sessionLog">
-            <h3>Laatste sessies</h3>
+            <h3>Recent sessions</h3>
             <div class="log-list" id="logList"></div>
         </div>
 
         <div id="progressChart" style="margin-top:18px;background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:18px">
-            <h3 style="font-size:14px;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">Voortgang over sessies</h3>
+            <h3 style="font-size:14px;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">Progress across sessions</h3>
             <canvas id="chartCanvas" width="800" height="200" style="width:100%;height:200px;border-radius:8px"></canvas>
         </div>
 
         <div class="results-actions">
-            <button class="start-btn" onclick="restartFromResults()">Nogmaals starten</button>
-            <button class="ghost-btn" onclick="downloadLastSession()">Laatste sessie JSON</button>
-            <button class="ghost-btn" onclick="downloadLastSessionCsv()">Laatste sessie CSV</button>
-            <button class="ghost-btn" onclick="backToStart()">Terug naar start</button>
-            <button class="ghost-btn" onclick="backToIAMMenu()">Terug naar IAM Menu</button>
+            <button class="start-btn" onclick="restartFromResults()">Start again</button>
+            <button class="ghost-btn" onclick="downloadLastSession()">Last session JSON</button>
+            <button class="ghost-btn" onclick="downloadLastSessionCsv()">Last session CSV</button>
+            <button class="ghost-btn" onclick="backToStart()">Back to start</button>
+            <button class="ghost-btn" onclick="backToIAMMenu()">Back to IAM Menu</button>
         </div>
     </div>
 </div>
@@ -375,187 +377,187 @@ button,input,select{font:inherit}
     <div class="editor">
         <div class="editor-header">
             <div>
-                <h2>Therapeut instellingen</h2>
+                <h2>Therapist settings</h2>
                 <p>
-                    Hier stel je de oefening in voor de cliënt. Deze versie gebruikt vaste layouts, optionele hold-tijd en rustiger feedback. Voor ADCA/SCA is dat nuttiger dan willekeurige kleine snelle doelen.
+                    Configure the exercise for the client here. This version uses fixed layouts, an optional hold time, and calmer feedback. For ADCA/SCA that is more useful than random small fast targets.
                 </p>
             </div>
-            <button class="ghost-btn" onclick="toggleTherapistPanel()">Sluiten</button>
+            <button class="ghost-btn" onclick="toggleTherapistPanel()">Close</button>
         </div>
 
         <div class="editor-grid">
             <div class="box">
-                <h3>Algemeen</h3>
-                <div class="row"><label>Sessieduur (seconden)</label><input id="cfgDuration" type="number" min="20" max="900" step="10"></div>
-                <div class="row"><label>Pauze tussen doelen (seconden)</label><input id="cfgPause" type="number" min="0" max="10" step="0.1"></div>
+                <h3>General</h3>
+                <div class="row"><label>Session duration (seconds)</label><input id="cfgDuration" type="number" min="20" max="900" step="10"></div>
+                <div class="row"><label>Pause between targets (seconds)</label><input id="cfgPause" type="number" min="0" max="10" step="0.1"></div>
                 <div class="row"><label>Zone diameter (pixels)</label><input id="cfgZoneSize" type="number" min="80" max="320" step="10"></div>
-                <div class="row"><label>Vaste zone afstand (pixels)</label><input id="cfgZoneDistance" type="number" min="120" max="520" step="10"></div>
-                <div class="row"><label>Volgorde</label>
+                <div class="row"><label>Fixed zone distance (pixels)</label><input id="cfgZoneDistance" type="number" min="120" max="520" step="10"></div>
+                <div class="row"><label>Sequence</label>
                     <select id="cfgSequenceType">
-                        <option value="alternating">Afwisselend</option>
-                        <option value="random">Willekeurig uit vaste set</option>
-                        <option value="pattern">Vast patroon</option>
+                        <option value="alternating">Alternating</option>
+                        <option value="random">Random from fixed set</option>
+                        <option value="pattern">Fixed pattern</option>
                     </select>
                 </div>
-                <div class="row"><label>Patroonreeks</label>
+                <div class="row"><label>Pattern sequence</label>
                     <select id="cfgPatternSequence">
-                        <option value="lrSimple">Links → Rechts</option>
-                        <option value="fbSimple">Voor → Achter</option>
-                        <option value="centerLR">Midden → Links → Midden → Rechts</option>
-                        <option value="centerFB">Midden → Voor → Midden → Achter</option>
-                        <option value="crossRound">Midden → Links → Midden → Rechts → Midden → Voor → Midden → Achter</option>
-                        <option value="clockwise4">Links → Voor → Rechts → Achter</option>
+                        <option value="lrSimple">Left → Right</option>
+                        <option value="fbSimple">Front → Back</option>
+                        <option value="centerLR">Center → Left → Center → Right</option>
+                        <option value="centerFB">Center → Front → Center → Back</option>
+                        <option value="crossRound">Center → Left → Center → Right → Center → Front → Center → Back</option>
+                        <option value="clockwise4">Left → Front → Right → Back</option>
                     </select>
                 </div>
-                <div class="row"><label>Cursor tonen tijdens gebruik</label>
-                    <select id="cfgShowCursor"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Show cursor during use</label>
+                    <select id="cfgShowCursor"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Debugpaneel standaard</label>
-                    <select id="cfgDebug"><option value="false">Uit</option><option value="true">Aan</option></select>
+                <div class="row"><label>Debug panel default</label>
+                    <select id="cfgDebug"><option value="false">Off</option><option value="true">On</option></select>
                 </div>
-                <div class="row"><label>Cursor ook zichtbaar in setup</label>
-                    <select id="cfgCursorInSetup"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Cursor also visible in setup</label>
+                    <select id="cfgCursorInSetup"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
             </div>
 
             <div class="box">
-                <h3>Detectie en feedback</h3>
-                <div class="row"><label>Contactduur voor hit (ms)</label><input id="cfgDwellMs" type="number" min="0" max="1500" step="50"></div>
-                <div class="row"><label>Hold-modus aan</label>
-                    <select id="cfgHoldEnabled"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <h3>Detection and feedback</h3>
+                <div class="row"><label>Contact duration for hit (ms)</label><input id="cfgDwellMs" type="number" min="0" max="1500" step="50"></div>
+                <div class="row"><label>Hold mode on</label>
+                    <select id="cfgHoldEnabled"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
-                <div class="row"><label>Hold-tijd (seconden)</label><input id="cfgHoldSeconds" type="number" min="0.2" max="10" step="0.1"></div>
-                <div class="row"><label>Positieve audio</label>
-                    <select id="cfgSoundPositive"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Hold time (seconds)</label><input id="cfgHoldSeconds" type="number" min="0.2" max="10" step="0.1"></div>
+                <div class="row"><label>Positive audio</label>
+                    <select id="cfgSoundPositive"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Foutaudio</label>
-                    <select id="cfgSoundNegative"><option value="false">Uit</option><option value="true">Aan</option></select>
+                <div class="row"><label>Error audio</label>
+                    <select id="cfgSoundNegative"><option value="false">Off</option><option value="true">On</option></select>
                 </div>
-                <div class="row"><label>Toon gemiste doelen</label>
-                    <select id="cfgShowMisses"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <div class="row"><label>Show missed targets</label>
+                    <select id="cfgShowMisses"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
                 <div class="row"><label>Smoothing factor</label><input id="cfgSmooth" type="number" min="0.1" max="0.98" step="0.01"></div>
                 <div class="row"><label>Touch time-out (ms)</label><input id="cfgTouchTimeout" type="number" min="50" max="2000" step="50"></div>
-                <div class="row"><label>Stem / tekstinstructie</label>
-                    <select id="cfgShowInstructions"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Voice / text instruction</label>
+                    <select id="cfgShowInstructions"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
             </div>
 
             <div class="box">
-                <h3>Presets en begeleider</h3>
-                <div class="row"><label>Profiel per niveau</label>
+                <h3>Presets and assistant</h3>
+                <div class="row"><label>Profile per level</label>
                     <select id="cfgPreset">
-                        <option value="scaMild">SCA mild — Zeer rustig</option>
-                        <option value="scaBalance">SCA mild/matig — Balans & controle</option>
-                        <option value="scaDirection">SCA matig — Stappen met richting</option>
-                        <option value="scaHold">SCA matig — Vasthouden / stabiliteit</option>
-                        <option value="scaGuided">SCA matig/gevorderd — Begeleidermodus</option>
-                        <option value="scaLimited">SCA gevorderd — Beperkt mobiel</option>
-                        <option value="veryCalm">Algemeen — Zeer rustig</option>
-                        <option value="balance">Algemeen — Balans</option>
-                        <option value="leftRight">Algemeen — Links / Rechts</option>
-                        <option value="reaction">Algemeen — Reactie licht</option>
-                        <option value="hold">Algemeen — Vasthouden</option>
-                        <option value="custom">Aangepast</option>
+                        <option value="scaMild">SCA mild — Very calm</option>
+                        <option value="scaBalance">SCA mild/moderate — Balance & control</option>
+                        <option value="scaDirection">SCA moderate — Stepping with direction</option>
+                        <option value="scaHold">SCA moderate — Hold / stability</option>
+                        <option value="scaGuided">SCA moderate/advanced — Assistant mode</option>
+                        <option value="scaLimited">SCA advanced — Limited mobility</option>
+                        <option value="veryCalm">General — Very calm</option>
+                        <option value="balance">General — Balance</option>
+                        <option value="leftRight">General — Left / Right</option>
+                        <option value="reaction">General — Light reaction</option>
+                        <option value="hold">General — Hold</option>
+                        <option value="custom">Custom</option>
                     </select>
                 </div>
-                <div class="row"><label>Rustmodus zonder timer</label>
-                    <select id="cfgNoTimer"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <div class="row"><label>Calm mode without timer</label>
+                    <select id="cfgNoTimer"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
-                <div class="row"><label>Begeleidermodus handmatig</label>
-                    <select id="cfgManualGuide"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <div class="row"><label>Assistant mode manual</label>
+                    <select id="cfgManualGuide"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
-                <div class="row"><label>Zone test als veilige controle</label>
-                    <select id="cfgZoneTestMode"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <div class="row"><label>Zone test as safe check</label>
+                    <select id="cfgZoneTestMode"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
-                <div class="row"><label>Inkomradius factor</label><input id="cfgEnterFactor" type="number" min="0.20" max="0.60" step="0.01"></div>
-                <div class="row"><label>Blijfradius factor</label><input id="cfgExitFactor" type="number" min="0.25" max="0.75" step="0.01"></div>
-                <div class="row"><label>X-as omkeren</label>
-                    <select id="cfgInvertX"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Entry radius factor</label><input id="cfgEnterFactor" type="number" min="0.20" max="0.60" step="0.01"></div>
+                <div class="row"><label>Stay radius factor</label><input id="cfgExitFactor" type="number" min="0.25" max="0.75" step="0.01"></div>
+                <div class="row"><label>Invert X axis</label>
+                    <select id="cfgInvertX"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Y-as omkeren</label>
-                    <select id="cfgInvertY"><option value="false">Nee</option><option value="true">Ja</option></select>
+                <div class="row"><label>Invert Y axis</label>
+                    <select id="cfgInvertY"><option value="false">No</option><option value="true">Yes</option></select>
                 </div>
             </div>
 
             <div class="box">
-                <h3>Modi</h3>
-                <div class="row"><label>Startmodus</label>
+                <h3>Modes</h3>
+                <div class="row"><label>Start mode</label>
                     <select id="cfgDefaultMode">
-                        <option value="leftRight">Links / Rechts</option>
-                        <option value="frontBack">Voor / Achter</option>
-                        <option value="cross">Kruis 4 richtingen</option>
-                        <option value="centerCross">Midden + 4 richtingen</option>
-                        <option value="hold">Vasthouden</option>
+                        <option value="leftRight">Left / Right</option>
+                        <option value="frontBack">Front / Back</option>
+                        <option value="cross">Cross 4 directions</option>
+                        <option value="centerCross">Center + 4 directions</option>
+                        <option value="hold">Hold</option>
                     </select>
                 </div>
-                <div class="row"><label>Labels tonen in zones</label>
-                    <select id="cfgShowLabels"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Show labels in zones</label>
+                    <select id="cfgShowLabels"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Stapsgewijze preview op startscherm</label>
-                    <select id="cfgPreviewMode"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Step-by-step preview on start screen</label>
+                    <select id="cfgPreviewMode"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
             </div>
 
             <div class="box">
-                <h3>Patiënt Profielen</h3>
-                <div class="row"><label>Huidig profiel</label>
+                <h3>Patient profiles</h3>
+                <div class="row"><label>Current profile</label>
                     <select id="cfgProfileSelect" onchange="loadProfile(this.value)">
-                        <option value="">-- Geen profiel --</option>
+                        <option value="">-- No profile --</option>
                     </select>
                 </div>
-                <div class="row"><label>Profiel opslaan als</label><input id="cfgProfileName" type="text" placeholder="Naam patiënt"></div>
+                <div class="row"><label>Save profile as</label><input id="cfgProfileName" type="text" placeholder="Patient name"></div>
                 <div style="display:flex;gap:8px;margin-top:8px">
-                    <button class="ghost-btn" type="button" onclick="saveProfile()">Profiel opslaan</button>
-                    <button class="danger-btn" type="button" onclick="deleteProfile()">Profiel verwijderen</button>
+                    <button class="ghost-btn" type="button" onclick="saveProfile()">Save profile</button>
+                    <button class="danger-btn" type="button" onclick="deleteProfile()">Delete profile</button>
                 </div>
             </div>
 
             <div class="box">
-                <h3>Rustpauze</h3>
-                <div class="row"><label>Rustpauze inschakelen</label>
-                    <select id="cfgRestEnabled"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <h3>Rest break</h3>
+                <div class="row"><label>Enable rest break</label>
+                    <select id="cfgRestEnabled"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Rust na X stappen</label><input id="cfgRestAfterSteps" type="number" min="3" max="30" step="1"></div>
-                <div class="row"><label>Rustduur (seconden)</label><input id="cfgRestDurationSec" type="number" min="3" max="30" step="1"></div>
+                <div class="row"><label>Rest after X steps</label><input id="cfgRestAfterSteps" type="number" min="3" max="30" step="1"></div>
+                <div class="row"><label>Rest duration (seconds)</label><input id="cfgRestDurationSec" type="number" min="3" max="30" step="1"></div>
             </div>
 
             <div class="box">
-                <h3>Automatische moeilijkheid</h3>
-                <div class="row"><label>Auto-aanpassing</label>
-                    <select id="cfgAutoDifficulty"><option value="true">Aan</option><option value="false">Uit</option></select>
+                <h3>Automatic difficulty</h3>
+                <div class="row"><label>Auto-adjust</label>
+                    <select id="cfgAutoDifficulty"><option value="true">On</option><option value="false">Off</option></select>
                 </div>
-                <div class="row"><label>Verhoging bij score boven (%)</label><input id="cfgAutoDiffUp" type="number" min="50" max="100" step="5"></div>
-                <div class="row"><label>Verlaging bij score onder (%)</label><input id="cfgAutoDiffDown" type="number" min="10" max="70" step="5"></div>
+                <div class="row"><label>Increase when score above (%)</label><input id="cfgAutoDiffUp" type="number" min="50" max="100" step="5"></div>
+                <div class="row"><label>Decrease when score below (%)</label><input id="cfgAutoDiffDown" type="number" min="10" max="70" step="5"></div>
             </div>
 
             <div class="box">
                 <h3>Logging</h3>
-                <div class="row"><label>Cliëntnaam</label><input id="cfgPatientName" type="text" maxlength="80"></div>
-                <div class="row"><label>Sessies lokaal bewaren</label>
-                    <select id="cfgStoreSessions"><option value="true">Ja</option><option value="false">Nee</option></select>
+                <div class="row"><label>Client name</label><input id="cfgPatientName" type="text" maxlength="80"></div>
+                <div class="row"><label>Store sessions locally</label>
+                    <select id="cfgStoreSessions"><option value="true">Yes</option><option value="false">No</option></select>
                 </div>
-                <div class="row"><label>Maximaal aantal bewaarde sessies</label><input id="cfgMaxLogs" type="number" min="5" max="200" step="1"></div>
-                <div class="row"><label>CSV-export beschikbaar</label><input value="Ja" disabled></div>
+                <div class="row"><label>Max stored sessions</label><input id="cfgMaxLogs" type="number" min="5" max="200" step="1"></div>
+                <div class="row"><label>CSV export available</label><input value="Yes" disabled></div>
             </div>
         </div>
 
         <div class="box">
-                <h3>Handmatige bediening</h3>
-                <div class="row"><label>Volgende doel handmatig kiezen</label><span style="color:var(--muted);font-size:13px">Werkt als begeleidermodus aan staat</span></div>
+                <h3>Manual control</h3>
+                <div class="row"><label>Pick next target manually</label><span style="color:var(--muted);font-size:13px">Works when assistant mode is on</span></div>
                 <div class="editor-actions" style="margin-top:8px">
-                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('left')">Links</button>
-                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('right')">Rechts</button>
-                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('up')">Voor</button>
-                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('down')">Achter</button>
-                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('center')">Midden</button>
-                    <button class="ghost-btn" type="button" onclick="manualNextTarget()">Volgende</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('left')">Left</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('right')">Right</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('up')">Front</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('down')">Back</button>
+                    <button class="ghost-btn" type="button" onclick="manualSelectTarget('center')">Center</button>
+                    <button class="ghost-btn" type="button" onclick="manualNextTarget()">Next</button>
                 </div>
             </div>
 
         <div class="editor-actions">
-            <button class="start-btn" onclick="saveSettings()">Instellingen opslaan</button>
-            <button class="ghost-btn" onclick="resetSettings()">Standaard herstellen</button>
+            <button class="start-btn" onclick="saveSettings()">Save settings</button>
+            <button class="ghost-btn" onclick="resetSettings()">Restore defaults</button>
         </div>
     </div>
 </div>
@@ -607,73 +609,73 @@ const defaultConfig = {
 
 const modeMeta = {
     leftRight: {
-        name: 'Links / Rechts',
-        desc: 'Rustige gewichtsverplaatsing',
-        instructions: ['Stap naar links', 'Stap naar rechts'],
+        name: 'Left / Right',
+        desc: 'Calm weight shift',
+        instructions: ['Step left', 'Step right'],
         layout: ['left', 'right']
     },
     frontBack: {
-        name: 'Voor / Achter',
-        desc: 'Gecontroleerde verplaatsing voor en terug',
-        instructions: ['Stap naar voren', 'Stap naar achteren'],
+        name: 'Front / Back',
+        desc: 'Controlled forward and back movement',
+        instructions: ['Step forward', 'Step back'],
         layout: ['up', 'down']
     },
     cross: {
-        name: 'Kruis 4 richtingen',
-        desc: 'Links, rechts, voor en achter',
-        instructions: ['Stap naar links', 'Stap naar rechts', 'Stap naar voren', 'Stap naar achteren'],
+        name: 'Cross 4 directions',
+        desc: 'Left, right, front and back',
+        instructions: ['Step left', 'Step right', 'Step forward', 'Step back'],
         layout: ['left', 'right', 'up', 'down']
     },
     centerCross: {
-        name: 'Midden + 4 richtingen',
-        desc: 'Terug naar midden en daarna naar een richting',
-        instructions: ['Ga naar midden', 'Stap naar links', 'Stap naar rechts', 'Stap naar voren', 'Stap naar achteren'],
+        name: 'Center + 4 directions',
+        desc: 'Return to center, then step toward a direction',
+        instructions: ['Go to center', 'Step left', 'Step right', 'Step forward', 'Step back'],
         layout: ['center', 'left', 'right', 'up', 'down']
     },
     hold: {
-        name: 'Vasthouden',
-        desc: 'Blijf stabiel op de actieve zone',
-        instructions: ['Blijf op de zone staan'],
+        name: 'Hold',
+        desc: 'Stay steady on the active zone',
+        instructions: ['Stay on the zone'],
         layout: ['left', 'right', 'up', 'down']
     }
 };
 
 const zoneLabels = {
-    left: 'Links',
-    right: 'Rechts',
-    up: 'Voor',
-    down: 'Achter',
-    center: 'Midden'
+    left: 'Left',
+    right: 'Right',
+    up: 'Front',
+    down: 'Back',
+    center: 'Center'
 };
 
 const patternSequences = {
     lrSimple: {
-        name: 'Links → Rechts',
+        name: 'Left → Right',
         layoutMode: 'leftRight',
         steps: ['left','right']
     },
     fbSimple: {
-        name: 'Voor → Achter',
+        name: 'Front → Back',
         layoutMode: 'frontBack',
         steps: ['up','down']
     },
     centerLR: {
-        name: 'Midden → Links → Midden → Rechts',
+        name: 'Center → Left → Center → Right',
         layoutMode: 'centerCross',
         steps: ['center','left','center','right']
     },
     centerFB: {
-        name: 'Midden → Voor → Midden → Achter',
+        name: 'Center → Front → Center → Back',
         layoutMode: 'centerCross',
         steps: ['center','up','center','down']
     },
     crossRound: {
-        name: 'Midden → Links → Midden → Rechts → Midden → Voor → Midden → Achter',
+        name: 'Center → Left → Center → Right → Center → Front → Center → Back',
         layoutMode: 'centerCross',
         steps: ['center','left','center','right','center','up','center','down']
     },
     clockwise4: {
-        name: 'Links → Voor → Rechts → Achter',
+        name: 'Left → Front → Right → Back',
         layoutMode: 'cross',
         steps: ['left','up','right','down']
     }
@@ -1066,7 +1068,7 @@ function actualStartSession(){
         startedAt: new Date().toISOString(),
         patientName: config.patientName || '',
         mode: getEffectiveMode(selectedMode),
-        modeName: config.sequenceType === 'pattern' ? ('Patroon · ' + getSelectedPattern().name) : modeMeta[getEffectiveMode(selectedMode)].name,
+        modeName: config.sequenceType === 'pattern' ? ('Pattern · ' + getSelectedPattern().name) : modeMeta[getEffectiveMode(selectedMode)].name,
         durationTarget: config.duration,
         pauseBetweenTargets: config.pauseBetweenTargets,
         zoneSize: config.zoneSize,
@@ -1090,8 +1092,8 @@ function actualStartSession(){
     };
 
     const effectiveMode = getEffectiveMode(selectedMode);
-    els.hudModeName.textContent = config.sequenceType === 'pattern' ? ('Patroon · ' + getSelectedPattern().name) : modeMeta[effectiveMode].name;
-    els.hudModeDesc.textContent = config.sequenceType === 'pattern' ? 'Vaste oefenreeks op vaste posities' : modeMeta[effectiveMode].desc;
+    els.hudModeName.textContent = config.sequenceType === 'pattern' ? ('Pattern · ' + getSelectedPattern().name) : modeMeta[effectiveMode].name;
+    els.hudModeDesc.textContent = config.sequenceType === 'pattern' ? 'Fixed exercise sequence on fixed positions' : modeMeta[effectiveMode].desc;
     document.getElementById('instructionBox').style.display = config.showInstructions ? 'block' : 'none';
     updateHud();
     buildLayout(false);
@@ -1151,14 +1153,14 @@ function finishSession(){
             config.dwellMs = Math.max(80, config.dwellMs - 20);
             config.pauseBetweenTargets = Math.max(0.3, config.pauseBetweenTargets - 0.1);
             adjusted = true;
-            showOverlay('Moeilijkheid verhoogd! ⬆', 'info', 1200);
+            showOverlay('Difficulty increased', 'info', 1200);
         } else if (successRate <= config.autoDiffThresholdDown) {
             // Make easier: bigger zones, longer time
             config.zoneSize = Math.min(300, config.zoneSize + 15);
             config.dwellMs = Math.min(500, config.dwellMs + 20);
             config.pauseBetweenTargets = Math.min(3, config.pauseBetweenTargets + 0.1);
             adjusted = true;
-            showOverlay('Moeilijkheid verlaagd ⬇', 'warn', 1200);
+            showOverlay('Difficulty decreased', 'warn', 1200);
         }
         if (adjusted) persistSettings();
     }
@@ -1233,8 +1235,8 @@ function nextTarget(immediate){
         const ring = zone.el.querySelector('.hold-ring .fg');
         if (ring) ring.style.strokeDashoffset = 289;
         const instruction = getEffectiveMode(selectedMode) === 'hold'
-            ? `Blijf op ${zoneLabels[nextId].toLowerCase()} staan`
-            : `Stap naar ${zoneLabels[nextId].toLowerCase()}`;
+            ? `Stay on ${zoneLabels[nextId].toLowerCase()}`
+            : `Step toward ${zoneLabels[nextId].toLowerCase()}`;
         els.instructionValue.textContent = instruction;
         els.dbgZone.textContent = zoneLabels[nextId];
 
@@ -1246,7 +1248,7 @@ function nextTarget(immediate){
                 if (game.running && game.currentTargetId === nextId) {
                     game.misses += 1;
                     zone.el.className = 'zone miss';
-                    if (config.showMisses) showOverlay('Gemist', 'warn', 400);
+                    if (config.showMisses) showOverlay('Missed', 'warn', 400);
                     if (config.soundNegative) playNegativeSound();
                     game.currentSession.steps.push({
                         at: new Date().toISOString(),
@@ -1331,18 +1333,18 @@ function registerSuccess(zoneId){
         holdApplied: getEffectiveMode(selectedMode) === 'hold' || config.holdEnabled
     });
 
-    showOverlay('Goed', 'good', 320);
+    showOverlay('Good', 'good', 320);
     playPositiveSound();
 
     // Encouragement messages at streak milestones
     var streakCount = game.goodSteps;
     var encouragements = {
-        3: 'Goed bezig! 💪',
-        5: 'Lekker tempo!',
-        8: 'Netjes! Ga zo door!',
-        10: 'Fantastisch! 🌟',
-        15: 'Geweldig! Wat een focus!',
-        20: 'Ongelooflijk! Top prestatie! 🏆'
+        3: 'Going well',
+        5: 'Nice pace',
+        8: 'Keep going',
+        10: 'Fantastic',
+        15: 'Great focus',
+        20: 'Top performance'
     };
     if (encouragements[streakCount]) {
         setTimeout(function() {
@@ -1367,7 +1369,7 @@ function registerSuccess(zoneId){
 }
 
 function updateHud(){
-    els.hudTime.textContent = config.noTimer ? 'Vrij' : formatTime(game.timeLeft);
+    els.hudTime.textContent = config.noTimer ? 'Free' : formatTime(game.timeLeft);
     els.hudGood.textContent = String(game.goodSteps);
     els.hudAvg.textContent = getAverageReaction().toFixed(2) + 's';
 }
@@ -1632,8 +1634,8 @@ function updateDebugVisibility(){
 }
 
 function updateDebugPanel(){
-    els.dbgWs.textContent = wsOk ? 'Verbonden' : 'Niet verbonden';
-    els.dbgTouch.textContent = pointer.hasTouch ? 'Ja (' + pointer.source + ')' : 'Nee';
+    els.dbgWs.textContent = wsOk ? 'Connected' : 'Not connected';
+    els.dbgTouch.textContent = pointer.hasTouch ? 'Yes (' + pointer.source + ')' : 'No';
     els.dbgRawX.textContent = pointer.rawX.toFixed(3);
     els.dbgRawY.textContent = pointer.rawY.toFixed(3);
     els.dbgSmoothX.textContent = pointer.smoothX.toFixed(3);
@@ -1658,14 +1660,14 @@ function loadSessionLogs(){
 function renderSessionLog(){
     const logs = loadSessionLogs();
     if (!logs.length) {
-        els.logList.innerHTML = '<div class="log-item">Nog geen sessies opgeslagen.</div>';
+        els.logList.innerHTML = '<div class="log-item">No sessions saved yet.</div>';
         renderProgressChart([]);
         return;
     }
     els.logList.innerHTML = logs.slice(0, 8).map(log => `
         <div class="log-item">
-            <strong>${escapeHtml(log.modeName || log.mode || '-')}</strong> · ${log.goodSteps || 0} goed · ${log.misses || 0} gemist · ${(log.averageReaction || 0).toFixed(2)}s gemiddeld
-            <small>${formatDate(log.startedAt)}${log.patientName ? ' · ' + escapeHtml(log.patientName) : ''}${log.sequenceType === 'pattern' ? ' · patroon' : ''}${log.patternSequenceName ? ' · ' + escapeHtml(log.patternSequenceName) : ''}${log.noTimer ? ' · vrij' : ''}${log.manualGuide ? ' · handmatig' : ''}</small>
+            <strong>${escapeHtml(log.modeName || log.mode || '-')}</strong> · ${log.goodSteps || 0} good · ${log.misses || 0} missed · ${(log.averageReaction || 0).toFixed(2)}s average
+            <small>${formatDate(log.startedAt)}${log.patientName ? ' · ' + escapeHtml(log.patientName) : ''}${log.sequenceType === 'pattern' ? ' · pattern' : ''}${log.patternSequenceName ? ' · ' + escapeHtml(log.patternSequenceName) : ''}${log.noTimer ? ' · free' : ''}${log.manualGuide ? ' · manual' : ''}</small>
         </div>
     `).join('');
     renderProgressChart(logs);
@@ -1684,7 +1686,7 @@ function renderProgressChart(logs) {
         ctx.fillStyle = '#95a0b8';
         ctx.font = '24px Manrope, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Minimaal 2 sessies nodig voor grafiek', w/2, h/2);
+        ctx.fillText('At least 2 sessions needed for chart', w/2, h/2);
         return;
     }
 
@@ -1751,7 +1753,7 @@ function renderProgressChart(logs) {
     ctx.fillStyle = '#95a0b8';
     ctx.font = '20px Manrope, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Sessies', w / 2, h - 8);
+    ctx.fillText('Sessions', w / 2, h - 8);
 
     // Legend
     ctx.fillStyle = '#5ad66f';
@@ -1759,12 +1761,12 @@ function renderProgressChart(logs) {
     ctx.fillStyle = '#d7def0';
     ctx.textAlign = 'left';
     ctx.font = '18px Manrope, sans-serif';
-    ctx.fillText('Goede stappen', pad.left + 22, 22);
+    ctx.fillText('Good steps', pad.left + 22, 22);
 
     ctx.fillStyle = '#ffd166';
     ctx.fillRect(pad.left + 180, 8, 16, 16);
     ctx.fillStyle = '#d7def0';
-    ctx.fillText('Gem. reactietijd (s)', pad.left + 202, 22);
+    ctx.fillText('Avg. reaction time (s)', pad.left + 202, 22);
 }
 
 function downloadLastSession(){
@@ -1773,7 +1775,7 @@ function downloadLastSession(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'stapzone_sessie_' + new Date().toISOString().replace(/[:.]/g,'-') + '.json';
+    a.download = 'stapzone_session_' + new Date().toISOString().replace(/[:.]/g,'-') + '.json';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1932,22 +1934,22 @@ function startZoneTest(){
     config.zoneTestMode = true;
     if (!['centerCross','cross','leftRight','frontBack'].includes(selectedMode)) selectedMode = 'centerCross';
     startSession();
-    showOverlay('Zone test actief', 'info', 900);
+    showOverlay('Zone test active', 'info', 900);
 }
 
 function downloadLastSessionCsv(){
     if (!game.lastSessionResult) return;
     const r = game.lastSessionResult;
     const rows = [
-        ['datum','client','modus','goede_stappen','gemist','gem_reactie_s','sessieduur_s','hold_s','pauze_s','volgorde','handmatig','zonder_timer','zone_test'],
-        [r.startedAt || '', r.patientName || '', r.modeName || r.mode || '', r.goodSteps || 0, r.misses || 0, (r.averageReaction || 0).toFixed(3), r.actualDuration || 0, r.holdSeconds || 0, r.pauseBetweenTargets || 0, (r.sequenceType === 'pattern' ? ('patroon: ' + (r.patternSequenceName || r.patternSequence || '')) : (r.sequenceType || '')), r.manualGuide ? 'ja':'nee', r.noTimer ? 'ja':'nee', r.zoneTestMode ? 'ja':'nee']
+        ['date','client','mode','good_steps','missed','avg_reaction_s','session_duration_s','hold_s','pause_s','sequence','manual','no_timer','zone_test'],
+        [r.startedAt || '', r.patientName || '', r.modeName || r.mode || '', r.goodSteps || 0, r.misses || 0, (r.averageReaction || 0).toFixed(3), r.actualDuration || 0, r.holdSeconds || 0, r.pauseBetweenTargets || 0, (r.sequenceType === 'pattern' ? ('pattern: ' + (r.patternSequenceName || r.patternSequence || '')) : (r.sequenceType || '')), r.manualGuide ? 'yes':'no', r.noTimer ? 'yes':'no', r.zoneTestMode ? 'yes':'no']
     ];
     const csv = rows.map(row => row.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'stapzone_sessie_' + new Date().toISOString().replace(/[:.]/g,'-') + '.csv';
+    a.download = 'stapzone_session_' + new Date().toISOString().replace(/[:.]/g,'-') + '.csv';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1970,7 +1972,7 @@ function refreshProfileDropdown() {
     if (!sel) return;
     var profiles = loadProfiles();
     var current = config.patientName || '';
-    sel.innerHTML = '<option value="">-- Geen profiel --</option>';
+    sel.innerHTML = '<option value="">-- No profile --</option>';
     Object.keys(profiles).sort().forEach(function(name) {
         var opt = document.createElement('option');
         opt.value = name;
@@ -1991,7 +1993,7 @@ function saveProfile() {
     config.patientName = name;
     persistSettings();
     refreshProfileDropdown();
-    showOverlay('Profiel opgeslagen', 'info', 600);
+    showOverlay('Profile saved', 'info', 600);
 }
 
 function loadProfile(name) {
@@ -2011,18 +2013,18 @@ function deleteProfile() {
     var nameEl = document.getElementById('cfgProfileName');
     var name = (nameEl.value || document.getElementById('cfgProfileSelect').value || '').trim();
     if (!name) return;
-    if (!confirm('Profiel "' + name + '" verwijderen?')) return;
+    if (!confirm('Delete profile "' + name + '"?')) return;
     var profiles = loadProfiles();
     delete profiles[name];
     saveProfiles(profiles);
     refreshProfileDropdown();
-    showOverlay('Profiel verwijderd', 'warn', 600);
+    showOverlay('Profile deleted', 'warn', 600);
 }
 
 function formatDate(iso){
     if (!iso) return '-';
     const d = new Date(iso);
-    return d.toLocaleString('nl-NL');
+    return d.toLocaleString('en-US');
 }
 
 function escapeHtml(s){
