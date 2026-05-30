@@ -13,14 +13,13 @@
 #   - an unprivileged iam-os user (uid 1000) and the dialout group,
 #   - the three IAM-OS services + the kiosk session enabled.
 #
-# The output is a rootfs tarball, not a bootable disk image. Producing a
-# flashable .img is Phase 7/8 work (bootloader, partition table, EFI
-# system partition). For the Phase 6 sandbox the tarball is what the
-# QEMU VM script consumes.
+# The output is a rootfs tarball. os-image/make-image.sh wraps it into a
+# bootable disk image (EFI + ext4 root + systemd-boot); both steps run
+# in CI on PR and tag pushes (.github/workflows/ci.yml).
 #
 # This script is Linux-only: mmdebstrap and (in --architectures) Debian's
-# multi-arch toolchain are not available on macOS. On macOS, run it inside
-# a Linux VM or rely on CI (wired up in Phase 7).
+# multi-arch toolchain are not available on macOS. On macOS, run it
+# inside a Linux VM or rely on CI.
 
 set -euo pipefail
 
@@ -32,6 +31,9 @@ OUT_DIR="${OUT_DIR:-out}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_ROOT="$REPO_ROOT/$OUT_DIR"
 OUT_TAR="$OUT_ROOT/iam-os-${VERSION}-${ARCH}-rootfs.tar"
+
+GIT_SHA="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [ "$(uname -s)" != "Linux" ]; then
     echo "build.sh: Debian bootstrap requires Linux (host is $(uname -s))" >&2
@@ -53,6 +55,7 @@ mkdir -p "$OUT_ROOT"
 
 PACKAGES=(
     systemd-sysv
+    systemd-boot
     udev
     dbus
     ca-certificates
@@ -60,6 +63,7 @@ PACKAGES=(
     cage
     iproute2
     locales
+    linux-image-amd64
     python3
     python3-venv
     python3-pip
@@ -74,20 +78,22 @@ mmdebstrap \
     --architectures="$ARCH" \
     --variant=minbase \
     --include="$(IFS=,; echo "${PACKAGES[*]}")" \
-    --customize-hook="mkdir -p \"\$1/opt/iam-os\" \"\$1/usr/share/iam-os\"" \
-    --customize-hook="copy-in $REPO_ROOT/services \"\$1/opt/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/games \"\$1/usr/share/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/launcher/dist \"\$1/usr/share/iam-os/launcher\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/units \"\$1/etc/systemd/system/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/tmpfiles.d \"\$1/etc/tmpfiles.d/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/udev \"\$1/etc/udev/rules.d/iam-os/\"" \
-    --customize-hook="copy-in $REPO_ROOT/os-image/chromium-kiosk.sh \"\$1/opt/iam-os/os-image/\"" \
+    --customize-hook="chroot \"\$1\" mkdir -p /opt/iam-os /opt/iam-os/os-image /usr/share/iam-os /usr/share/iam-os/launcher /etc/systemd/system/iam-os /etc/tmpfiles.d/iam-os /etc/udev/rules.d/iam-os" \
+    --customize-hook="copy-in $REPO_ROOT/services /opt/iam-os/" \
+    --customize-hook="copy-in $REPO_ROOT/games /usr/share/iam-os/" \
+    --customize-hook="sync-in $REPO_ROOT/launcher/dist /usr/share/iam-os/launcher" \
+    --customize-hook="sync-in $REPO_ROOT/os-image/units /etc/systemd/system/iam-os" \
+    --customize-hook="sync-in $REPO_ROOT/os-image/tmpfiles.d /etc/tmpfiles.d/iam-os" \
+    --customize-hook="sync-in $REPO_ROOT/os-image/udev /etc/udev/rules.d/iam-os" \
+    --customize-hook="copy-in $REPO_ROOT/os-image/chromium-kiosk.sh /opt/iam-os/os-image/" \
     --customize-hook="chroot \"\$1\" /bin/bash -euxo pipefail -c '
         getent group iam-os >/dev/null || groupadd --system iam-os
         id iam-os >/dev/null 2>&1 || useradd --system --gid iam-os --groups dialout,tty,video --create-home --home-dir /var/lib/iam-os --shell /usr/sbin/nologin iam-os
         for svc in lidar-service touch-bridge web-server; do
             python3 -m venv \"/opt/iam-os/services/\$svc/.venv\"
-            \"/opt/iam-os/services/\$svc/.venv/bin/pip\" install --no-cache-dir --quiet \"/opt/iam-os/services/\$svc\"
+            \"/opt/iam-os/services/\$svc/.venv/bin/pip\" install --no-cache-dir --quiet \
+                -c \"/opt/iam-os/services/\$svc/constraints.txt\" \
+                \"/opt/iam-os/services/\$svc\"
         done
         chown -R iam-os:iam-os /opt/iam-os /var/lib/iam-os
         chmod +x /opt/iam-os/os-image/chromium-kiosk.sh
@@ -99,6 +105,14 @@ mmdebstrap \
         rmdir /etc/udev/rules.d/iam-os
         systemctl enable iam-lidar-service.service iam-touch-bridge.service iam-web-server.service iam-os-kiosk.service
         systemctl set-default graphical.target
+        cat > /etc/iam-os-version <<RELEASE
+IAM_OS_VERSION=$VERSION
+IAM_OS_GIT_SHA=$GIT_SHA
+IAM_OS_BUILD_DATE=$BUILD_DATE
+IAM_OS_ARCH=$ARCH
+IAM_OS_SUITE=$SUITE
+RELEASE
+        sed -i \"s/^PRETTY_NAME=.*/PRETTY_NAME=\\\"IAM-OS $VERSION (Debian $SUITE)\\\"/\" /etc/os-release
     '" \
     --customize-hook="chroot \"\$1\" apt-get clean && rm -rf \"\$1/var/lib/apt/lists/\"*" \
     "$SUITE" \

@@ -1,0 +1,10 @@
+# Pinned runtime dependencies for the IAM-OS LiDAR service.
+# Regenerate with:
+#   .venv/bin/pip install -e . && .venv/bin/pip freeze --exclude-editable \
+#     | grep -vE '^(pytest|ruff|mypy|Pygments|iniconfig|pluggy|packaging)' \
+#     > constraints.txt
+# (or recreate this list by hand when bumping a dep).
+
+numpy==2.4.6
+pyrplidar==0.1.2
+pyserial==3.5

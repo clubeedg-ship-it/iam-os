@@ -1,0 +1,12 @@
+# Pinned runtime dependencies for the IAM-OS web server.
+
+aiohappyeyeballs==2.6.2
+aiohttp==3.13.5
+aiosignal==1.4.0
+attrs==26.1.0
+frozenlist==1.8.0
+idna==3.17
+multidict==6.7.1
+propcache==0.5.2
+typing_extensions==4.15.0
+yarl==1.24.2

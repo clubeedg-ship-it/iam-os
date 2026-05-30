@@ -1,0 +1,83 @@
+name: Release
+
+# Triggered on a semver tag push (v0.1.0, v1.2.3, etc.). Builds the
+# appliance image, boots it under QEMU as a smoke test, then publishes a
+# GitHub Release with the .img.gz and a SHA-256 checksum.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build + boot smoke + publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          echo "Releasing IAM-OS $v ($GITHUB_REF_NAME)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+
+      - name: Build launcher
+        run: |
+          cd launcher
+          npm ci
+          npm run build
+
+      - name: Install image build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            mmdebstrap debian-archive-keyring \
+            parted dosfstools e2fsprogs gdisk systemd-container \
+            qemu-system-x86 ovmf curl
+
+      - name: Build rootfs
+        env:
+          IAM_OS_VERSION: ${{ steps.version.outputs.version }}
+        run: ./os-image/build.sh
+
+      - name: Build appliance image
+        env:
+          IAM_OS_VERSION: ${{ steps.version.outputs.version }}
+        run: ./os-image/make-image.sh
+
+      - name: Boot smoke under QEMU
+        env:
+          IAM_OS_VERSION: ${{ steps.version.outputs.version }}
+        run: ./.github/scripts/boot-smoke.sh
+
+      - name: Compute checksums
+        run: |
+          cd out
+          for f in iam-os-*.img.gz; do
+            sha256sum "$f" > "$f.sha256"
+          done
+          ls -lh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: IAM-OS ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            out/iam-os-*.img.gz
+            out/iam-os-*.img.gz.sha256
