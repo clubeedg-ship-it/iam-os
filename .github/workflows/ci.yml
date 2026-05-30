@@ -32,11 +32,21 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install test dependencies
-        run: pip install numpy pytest pytest-asyncio jsonschema websockets
+        run: |
+          pip install \
+            numpy \
+            pytest \
+            pytest-asyncio \
+            pytest-aiohttp \
+            jsonschema \
+            websockets \
+            aiohttp
       - name: Run lidar-service tests
         run: pytest services/lidar-service/tests
       - name: Run touch-bridge tests
         run: pytest services/touch-bridge/tests
+      - name: Run web-server tests
+        run: pytest services/web-server/tests
 
   lint-js:
     name: Lint (JavaScript)
@@ -46,14 +56,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: eslint
-        run: |
-          if [ -f package.json ]; then
-            npm ci
-            npm run lint --if-present
-          else
-            echo "No JavaScript project yet; Phase 4 introduces the launcher."
-          fi
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - name: Install launcher dependencies
+        working-directory: launcher
+        run: npm ci
+      - name: ESLint
+        working-directory: launcher
+        run: npm run lint
 
   validate-games:
     name: Validate games
@@ -67,4 +77,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Placeholder - launcher build is implemented in Phase 4."
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - name: Install launcher dependencies
+        working-directory: launcher
+        run: npm ci
+      - name: Vite build
+        working-directory: launcher
+        run: npm run build
+      - name: Upload launcher dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-dist
+          path: launcher/dist
+          if-no-files-found: error
