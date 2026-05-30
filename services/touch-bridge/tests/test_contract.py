@@ -54,8 +54,25 @@ def test_coordinates_are_clamped_to_the_unit_range():
 
 
 def test_only_contract_fields_are_kept():
-    upstream = {"touches": [{"id": 1, "x": 0.5, "y": 0.5, "raw_x_mm": 100.0, "size": 12}]}
-    touch = to_contract_message(upstream, seq=1)["touches"][0]
+    """The bridge strips every field except id/x/y, so the frozen public
+    contract is unchanged even though lidar-service now sends raw_x_mm /
+    raw_y_mm on its private wire for the launcher's calibration flow.
+    """
+    upstream = {
+        "touches": [
+            {
+                "id": 1,
+                "x": 0.5,
+                "y": 0.5,
+                "raw_x_mm": 100.0,
+                "raw_y_mm": 200.0,
+                "size": 12,
+            }
+        ]
+    }
+    message = to_contract_message(upstream, seq=1)
+    _assert_valid(message)
+    touch = message["touches"][0]
     assert set(touch.keys()) == {"id", "x", "y"}
 
 

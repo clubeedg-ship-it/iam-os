@@ -19,12 +19,26 @@ _log = logging.getLogger(__name__)
 
 
 def frame_to_dict(frame: TouchFrame) -> dict:
-    """Convert a TouchFrame to the JSON-serializable shape sent downstream."""
+    """Convert a TouchFrame to the JSON-serializable shape sent downstream.
+
+    Each touch carries the contract fields (``id``, ``x``, ``y``) plus its
+    pre-calibration cartesian centroid (``raw_x_mm``, ``raw_y_mm``). The raw
+    fields exist so the launcher's calibration flow can sample sensor-space
+    corner positions; the touch-bridge strips them before re-emitting the
+    frozen public touch contract.
+    """
     return {
         "seq": frame.seq,
         "count": frame.count,
         "touches": [
-            {"id": touch.id, "x": touch.x, "y": touch.y} for touch in frame.touches
+            {
+                "id": touch.id,
+                "x": touch.x,
+                "y": touch.y,
+                "raw_x_mm": touch.raw_x_mm,
+                "raw_y_mm": touch.raw_y_mm,
+            }
+            for touch in frame.touches
         ],
     }
 

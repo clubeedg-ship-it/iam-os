@@ -19,12 +19,18 @@ def test_frame_to_dict_of_an_empty_frame():
     assert frame_to_dict(TouchFrame(seq=7)) == {"seq": 7, "count": 0, "touches": []}
 
 
-def test_frame_to_dict_emits_only_contract_fields():
+def test_frame_to_dict_includes_raw_mm_for_calibration():
+    """raw_x_mm / raw_y_mm travel on the lidar->bridge wire so the launcher's
+    calibration flow can record sensor-space corner positions. The bridge
+    strips them before re-emitting the frozen public touch contract.
+    """
     touch = Touch(id=3, x=0.25, y=0.75, raw_x_mm=120.0, raw_y_mm=340.0, size=11)
     assert frame_to_dict(TouchFrame(seq=9, touches=(touch,))) == {
         "seq": 9,
         "count": 1,
-        "touches": [{"id": 3, "x": 0.25, "y": 0.75}],
+        "touches": [
+            {"id": 3, "x": 0.25, "y": 0.75, "raw_x_mm": 120.0, "raw_y_mm": 340.0}
+        ],
     }
 
 
