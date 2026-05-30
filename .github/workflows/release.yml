@@ -45,7 +45,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            mmdebstrap parted dosfstools e2fsprogs gdisk systemd-container \
+            mmdebstrap debian-archive-keyring \
+            parted dosfstools e2fsprogs gdisk systemd-container \
             qemu-system-x86 ovmf curl
 
       - name: Build rootfs
