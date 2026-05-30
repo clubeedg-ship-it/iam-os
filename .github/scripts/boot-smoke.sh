@@ -89,9 +89,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-WEB_MARKER='Started iam-web-server.service'
-BRIDGE_MARKER='Started iam-touch-bridge.service'
-LIDAR_MARKER='Started iam-lidar-service.service'
+# systemd writes "[ OK ] Started iam-web-server.service ..." but wraps
+# the unit name in colour escapes, so a plain literal grep for
+# "Started iam-web-server" misses. Strip ANSI before matching.
+strip_ansi() {
+    sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g'
+}
+
+WEB_MARKER='Started iam-web-server'
+BRIDGE_MARKER='Started iam-touch-bridge'
+LIDAR_MARKER='Started iam-lidar-service'
 
 note "watching serial log for IAM-OS service starts (timeout ${BOOT_TIMEOUT}s)"
 deadline=$(( $(date +%s) + BOOT_TIMEOUT ))
@@ -105,15 +112,16 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
         break
     fi
     if [ -f "$SERIAL_LOG" ]; then
-        if [ "$saw_web" -eq 0 ] && grep -q -F "$WEB_MARKER" "$SERIAL_LOG" 2>/dev/null; then
+        stripped="$(strip_ansi < "$SERIAL_LOG")"
+        if [ "$saw_web" -eq 0 ] && printf '%s\n' "$stripped" | grep -q -F "$WEB_MARKER"; then
             note "marker: web-server"
             saw_web=1
         fi
-        if [ "$saw_bridge" -eq 0 ] && grep -q -F "$BRIDGE_MARKER" "$SERIAL_LOG" 2>/dev/null; then
+        if [ "$saw_bridge" -eq 0 ] && printf '%s\n' "$stripped" | grep -q -F "$BRIDGE_MARKER"; then
             note "marker: touch-bridge"
             saw_bridge=1
         fi
-        if [ "$saw_lidar" -eq 0 ] && grep -q -F "$LIDAR_MARKER" "$SERIAL_LOG" 2>/dev/null; then
+        if [ "$saw_lidar" -eq 0 ] && printf '%s\n' "$stripped" | grep -q -F "$LIDAR_MARKER"; then
             note "marker: lidar-service"
             saw_lidar=1
         fi
