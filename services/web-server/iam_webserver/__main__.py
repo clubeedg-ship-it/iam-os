@@ -13,7 +13,11 @@ import logging
 import sys
 from pathlib import Path
 
+from aiohttp import web
+
+from iam_webserver.app import create_app
 from iam_webserver.config import ConfigError, load_config
+from iam_webserver.lidar_client import LidarFrameCache
 from iam_webserver.logging_setup import configure_logging
 
 _log = logging.getLogger("iam_webserver")
@@ -51,10 +55,17 @@ def main(argv: list[str] | None = None) -> int:
     port = args.port or config.server.port
     _log.info("starting web-server (host=%s, port=%d)", host, port)
 
-    # Application assembly is wired in the next step; for now the entry
-    # point validates configuration so misconfigured deployments fail
-    # before the appliance reaches the kiosk page.
-    _log.warning("web-server entry point is a stub; routes land in the next commit")
+    cache = LidarFrameCache(
+        socket_path=config.lidar.socket_path,
+        reconnect_initial_s=config.lidar.reconnect_initial_s,
+        reconnect_max_s=config.lidar.reconnect_max_s,
+    )
+    app = create_app(config, cache=cache)
+    try:
+        web.run_app(app, host=host, port=port, print=None)
+    except KeyboardInterrupt:
+        pass
+    _log.info("web-server stopped")
     return 0
 
 
