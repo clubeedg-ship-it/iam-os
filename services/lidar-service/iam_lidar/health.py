@@ -7,6 +7,7 @@ operator can see whether tracking is live.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from enum import Enum
 
 _log = logging.getLogger(__name__)
@@ -22,11 +23,15 @@ class HealthState(Enum):
     FAILED = "failed"
 
 
+Listener = Callable[[HealthState], None]
+
+
 class HealthReporter:
     """Holds the current health state and logs every transition."""
 
     def __init__(self) -> None:
         self._state = HealthState.DISCONNECTED
+        self._listeners: list[Listener] = []
 
     @property
     def state(self) -> HealthState:
@@ -40,3 +45,24 @@ class HealthReporter:
         previous = self._state
         self._state = state
         _log.info("health: %s -> %s", previous.value, state.value)
+        for listener in list(self._listeners):
+            try:
+                listener(state)
+            except Exception:
+                _log.exception("health listener raised; continuing")
+
+    def add_listener(self, listener: Listener) -> None:
+        """Register a callback invoked on every state transition.
+
+        A listener failure is logged but does not prevent other listeners
+        from running, so a misbehaving status writer cannot mask another
+        observer of the health state.
+        """
+        self._listeners.append(listener)
+
+    def remove_listener(self, listener: Listener) -> None:
+        """Unregister a previously-added listener; no-op if not present."""
+        try:
+            self._listeners.remove(listener)
+        except ValueError:
+            pass

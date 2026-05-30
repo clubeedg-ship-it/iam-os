@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iam-web-server"
+version = "0.1.0"
+description = "IAM-OS web server: serves the launcher and games, exposes the control API."
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-aiohttp>=1.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+iam-web-server = "iam_webserver.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["iam_webserver"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IAM-OS Launcher</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="brand">IAM-OS</div>
+      <ul class="tabs">
+        <li><a href="#/calibrate" data-view="calibrate">Calibrate</a></li>
+        <li><a href="#/test" data-view="test">Test</a></li>
+        <li><a href="#/games" data-view="games">Games</a></li>
+        <li><a href="#/status" data-view="status">Status</a></li>
+      </ul>
+      <div class="health" id="health-pill" data-state="unknown">—</div>
+    </nav>
+    <main id="view-root"></main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

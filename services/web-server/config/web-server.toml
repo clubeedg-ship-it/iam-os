@@ -1,0 +1,38 @@
+# IAM-OS web-server configuration.
+#
+# The web-server hosts the launcher SPA, serves the games, and exposes the
+# control API the launcher calls into. It is a read-client of lidar-service
+# (status file + frame socket) and the writer of the calibration preset
+# store that lidar-service polls.
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[paths]
+# Built launcher static files served at /.
+launcher_dist = "/usr/share/iam-os/launcher"
+# Games root served at /games/.
+games_dir = "/usr/share/iam-os/games"
+
+[lidar]
+# Unix socket lidar-service publishes touch frames on. The web-server
+# connects to it as a second client (after touch-bridge) and reads
+# raw_x_mm / raw_y_mm for the calibration capture flow.
+socket_path = "/run/iam-os/lidar.sock"
+# Status JSON lidar-service writes; read by /api/status.
+status_file = "/run/iam-os/lidar-status.json"
+# Reconnect backoff to the lidar socket when it is down.
+reconnect_initial_s = 0.5
+reconnect_max_s = 5.0
+
+[calibration]
+# Calibration preset store. The web-server is the writer; lidar-service
+# polls active_pointer_path and reloads on change. Both services MUST agree
+# on these paths.
+presets_dir = "/var/lib/iam-os/calibration"
+active_pointer_path = "/var/lib/iam-os/calibration/active.json"
+
+[logging]
+# Log level: DEBUG, INFO, WARNING, or ERROR.
+level = "INFO"

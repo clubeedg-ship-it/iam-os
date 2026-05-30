@@ -49,6 +49,24 @@ track_tolerance_mm = 150
 # Unix domain socket the touch-bridge connects to for touch frames.
 socket_path = "/run/iam-os/lidar.sock"
 
+[calibration]
+# Calibration preset store, owned by the launcher's web-server. lidar-service
+# polls active_pointer_path and reloads the named preset on change, so a new
+# calibration takes effect without restarting the service. Empty paths
+# disable the watcher.
+presets_dir = "/var/lib/iam-os/calibration"
+active_pointer_path = "/var/lib/iam-os/calibration/active.json"
+poll_interval_s = 0.5
+
+[status]
+# Where lidar-service writes its health and tracking snapshot. The
+# launcher's web-server reads this file to power its status view. Set
+# to an empty string to disable status reporting.
+file_path = "/run/iam-os/lidar-status.json"
+# Heartbeat interval, seconds: the file is also refreshed at this rate so
+# a stuck service is visible as a stale `updated_at` timestamp.
+heartbeat_interval_s = 1.0
+
 [logging]
 # Log level: DEBUG, INFO, WARNING, or ERROR.
 level = "INFO"

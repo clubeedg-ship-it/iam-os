@@ -132,6 +132,44 @@ class OutputConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class CalibrationConfig:
+    """Where lidar-service finds calibration presets and the active pointer.
+
+    The launcher's web-server is the writer of these files; lidar-service
+    polls the active pointer and reloads on change. Setting either path to
+    an empty string disables the watcher entirely.
+    """
+
+    presets_dir: str
+    active_pointer_path: str
+    poll_interval_s: float
+
+    def __post_init__(self) -> None:
+        """Reject a non-positive poll interval."""
+        _require_positive(
+            self.poll_interval_s, "[calibration].poll_interval_s"
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class StatusConfig:
+    """Where lidar-service publishes its health and tracking snapshot.
+
+    The launcher's web-server reads this file. Setting ``file_path`` to an
+    empty string disables status reporting entirely.
+    """
+
+    file_path: str
+    heartbeat_interval_s: float
+
+    def __post_init__(self) -> None:
+        """Reject a non-positive heartbeat interval."""
+        _require_positive(
+            self.heartbeat_interval_s, "[status].heartbeat_interval_s"
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class LoggingConfig:
     """Logging behaviour."""
 
@@ -154,6 +192,8 @@ class Config:
     connection: ConnectionConfig
     detection: DetectionConfig
     output: OutputConfig
+    calibration: CalibrationConfig
+    status: StatusConfig
     logging: LoggingConfig
 
 
@@ -162,6 +202,8 @@ _SECTIONS: dict[str, type] = {
     "connection": ConnectionConfig,
     "detection": DetectionConfig,
     "output": OutputConfig,
+    "calibration": CalibrationConfig,
+    "status": StatusConfig,
     "logging": LoggingConfig,
 }
 

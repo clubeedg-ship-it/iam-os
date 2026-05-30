@@ -33,6 +33,15 @@ track_tolerance_mm = 150
 [output]
 socket_path = "/run/iam-os/lidar.sock"
 
+[calibration]
+presets_dir = "/var/lib/iam-os/calibration"
+active_pointer_path = "/var/lib/iam-os/calibration/active.json"
+poll_interval_s = 0.5
+
+[status]
+file_path = "/run/iam-os/lidar-status.json"
+heartbeat_interval_s = 1.0
+
 [logging]
 level = "INFO"
 """
