@@ -91,7 +91,9 @@ mmdebstrap \
         id iam-os >/dev/null 2>&1 || useradd --system --gid iam-os --groups dialout,tty,video --create-home --home-dir /var/lib/iam-os --shell /usr/sbin/nologin iam-os
         for svc in lidar-service touch-bridge web-server; do
             python3 -m venv \"/opt/iam-os/services/\$svc/.venv\"
-            \"/opt/iam-os/services/\$svc/.venv/bin/pip\" install --no-cache-dir --quiet \"/opt/iam-os/services/\$svc\"
+            \"/opt/iam-os/services/\$svc/.venv/bin/pip\" install --no-cache-dir --quiet \
+                -c \"/opt/iam-os/services/\$svc/constraints.txt\" \
+                \"/opt/iam-os/services/\$svc\"
         done
         chown -R iam-os:iam-os /opt/iam-os /var/lib/iam-os
         chmod +x /opt/iam-os/os-image/chromium-kiosk.sh
