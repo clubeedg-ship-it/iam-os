@@ -2,12 +2,19 @@
 # Boot the just-built IAM-OS image under QEMU and assert that systemd
 # reaches multi-user.target with the three IAM-OS services started.
 #
-# We watch the serial console output rather than poking the launcher
-# over HTTP: a port forward into the guest needs the guest to have a
-# DHCP-configured network interface, and configuring DHCP in the
-# appliance image purely to satisfy CI smoke would change the
-# appliance's actual surface. The serial log proves the boot path
-# without that detour.
+# Strategy:
+# 1. Extract the kernel + initrd from the image's ESP.
+# 2. Boot QEMU with -kernel/-initrd/-append so we can append
+#    "clearcpuid=avx,avx2,fma" to the cmdline ONLY in the QEMU run.
+#    GitHub runners are TCG-only and TCG does not emulate AVX/AVX2/FMA,
+#    so the bundled NumPy wheel hits SIGILL on its first dispatch
+#    unless the kernel masks those features from CPUID. The appliance's
+#    real boot loader entry stays AVX-friendly.
+# 3. Watch the serial log for "Started iam-{lidar,touch-bridge,web}".
+#    All three present = boot path is healthy.
+#
+# Watching the serial log instead of poking /api/status over HTTP
+# avoids needing DHCP / port-forward in the guest.
 
 set -euo pipefail
 
@@ -19,6 +26,7 @@ BOOT_TIMEOUT="${BOOT_TIMEOUT:-300}"
 IMG_GZ="$OUT_DIR/iam-os-${VERSION}-${ARCH}.img.gz"
 IMG="$OUT_DIR/iam-os-${VERSION}-${ARCH}.boot.img"
 SERIAL_LOG="$OUT_DIR/boot-serial.log"
+KERNEL_DIR="$OUT_DIR/boot-extract"
 
 note() { printf '[boot-smoke] %s\n' "$*"; }
 fail() { printf '[boot-smoke] FAIL: %s\n' "$*" >&2; exit 1; }
@@ -28,20 +36,33 @@ fail() { printf '[boot-smoke] FAIL: %s\n' "$*" >&2; exit 1; }
 note "decompressing image for boot"
 gunzip -c "$IMG_GZ" > "$IMG"
 
-for candidate in /usr/share/OVMF/OVMF_CODE.fd /usr/share/ovmf/OVMF.fd /usr/share/qemu/OVMF.fd; do
-    if [ -f "$candidate" ]; then
-        OVMF="$candidate"
-        break
-    fi
-done
-[ -n "${OVMF:-}" ] || fail "OVMF firmware not found — install package ovmf"
+note "extracting kernel + initrd from ESP"
+mkdir -p "$KERNEL_DIR" "$KERNEL_DIR/mnt"
+LOOP="$(sudo losetup -fP --show "$IMG")"
+sudo mount "${LOOP}p1" "$KERNEL_DIR/mnt"
+KERNEL_SRC="$(sudo ls "$KERNEL_DIR/mnt" | grep '^vmlinuz' | sort -V | tail -1)"
+INITRD_SRC="$(sudo ls "$KERNEL_DIR/mnt" | grep '^initrd.img' | sort -V | tail -1)"
+[ -n "$KERNEL_SRC" ] || { sudo umount "$KERNEL_DIR/mnt"; sudo losetup -d "$LOOP"; fail "no kernel on ESP"; }
+[ -n "$INITRD_SRC" ] || { sudo umount "$KERNEL_DIR/mnt"; sudo losetup -d "$LOOP"; fail "no initrd on ESP"; }
+sudo cp "$KERNEL_DIR/mnt/$KERNEL_SRC" "$KERNEL_DIR/vmlinuz"
+sudo cp "$KERNEL_DIR/mnt/$INITRD_SRC" "$KERNEL_DIR/initrd"
+sudo umount "$KERNEL_DIR/mnt"
+ROOT_PARTUUID="$(sudo blkid -s PARTUUID -o value "${LOOP}p2")"
+sudo losetup -d "$LOOP"
+sudo chown "$(id -u):$(id -g)" "$KERNEL_DIR/vmlinuz" "$KERNEL_DIR/initrd"
+note "kernel=$KERNEL_SRC initrd=$INITRD_SRC root=PARTUUID=$ROOT_PARTUUID"
+
+CMDLINE="root=PARTUUID=$ROOT_PARTUUID ro console=tty0 console=ttyS0,115200n8 systemd.show_status=yes clearcpuid=avx,avx2,fma"
+note "kernel cmdline: $CMDLINE"
 
 note "booting under QEMU (TCG, headless, serial -> $SERIAL_LOG)"
 qemu-system-x86_64 \
     -m 2048 \
     -smp 2 \
-    -bios "$OVMF" \
     -drive "file=$IMG,if=virtio,format=raw" \
+    -kernel "$KERNEL_DIR/vmlinuz" \
+    -initrd "$KERNEL_DIR/initrd" \
+    -append "$CMDLINE" \
     -nographic \
     -serial "file:$SERIAL_LOG" \
     -monitor none \
@@ -57,11 +78,10 @@ cleanup() {
         kill -KILL "$QEMU_PID" 2>/dev/null || true
     fi
     rm -f "$IMG"
+    rm -rf "$KERNEL_DIR"
 }
 trap cleanup EXIT
 
-# The markers we expect from a healthy boot. systemd's status lines are
-# locale-stable English under our cmdline.
 WEB_MARKER='Started iam-web-server.service'
 BRIDGE_MARKER='Started iam-touch-bridge.service'
 LIDAR_MARKER='Started iam-lidar-service.service'
@@ -99,6 +119,6 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
 done
 
 note "missing markers — web=$saw_web bridge=$saw_bridge lidar=$saw_lidar"
-note "last 150 lines of serial log:"
-tail -150 "$SERIAL_LOG" 2>/dev/null || echo "(no serial output captured)"
+note "last 200 lines of serial log:"
+tail -200 "$SERIAL_LOG" 2>/dev/null || echo "(no serial output captured)"
 fail "boot did not reach all three IAM-OS service starts within ${BOOT_TIMEOUT}s"
