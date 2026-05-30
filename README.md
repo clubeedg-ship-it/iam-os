@@ -35,6 +35,16 @@ full-screen Chromium kiosk showing the launcher, backed by three
 
 ## Status
 
-Early development — **Phase 1 (Foundation)** of the implementation plan. The
-`services/`, `launcher/`, and `games/` directories are scaffolding; their code
-lands in later phases.
+**All 8 phases of the [implementation plan](docs/IMPLEMENTATION-PLAN.md) are
+complete and `v0.1.0` is released**: foundation, lidar-service with R1–R8
+reliability, touch-bridge, launcher SPA + web-server, game integration with
+validate-games gate, Debian 12 appliance image with systemd-supervised
+services + cage/Chromium kiosk, tag-triggered release pipeline with QEMU
+boot smoke, and the field validation procedure.
+
+- Latest release (flashable `.img.gz` + checksum):
+  <https://github.com/clubeedg-ship-it/iam-os/releases/tag/v0.1.0>
+- Field validation procedure: [`docs/field-validation/PROCEDURE.md`](docs/field-validation/PROCEDURE.md)
+- Build / CI notes (mmdebstrap, QEMU TCG, NumPy, systemd quirks):
+  [`docs/build-notes.md`](docs/build-notes.md)
+- Host dev loop (no hardware): `./sandbox/run-fast-loop.sh`

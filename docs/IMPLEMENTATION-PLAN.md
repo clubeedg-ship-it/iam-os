@@ -18,6 +18,14 @@ proceeds **one phase at a time** with review between phases — Phase 1 is the
 immediate executable unit; later phases are sequenced but not started until
 their predecessors land.
 
+**Status (2026-05-30):** Phases 1–8 are merged to `main` and `v0.1.0` is
+released. The flashable appliance image plus checksum live at
+<https://github.com/clubeedg-ship-it/iam-os/releases/tag/v0.1.0>. The
+remaining work is the on-site field validation procedure
+(`docs/field-validation/PROCEDURE.md`); on pass, tag `v0.1.0-validated`.
+Implementation lessons surfaced during Phases 6–8 are captured in
+`docs/build-notes.md` so future image / CI changes don't rediscover them.
+
 ## Tech decisions (resolving items left open in `specs.md`)
 
 | Open item | Decision | Reason |
