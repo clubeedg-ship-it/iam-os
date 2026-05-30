@@ -1,0 +1,11 @@
+{
+  "$schema": "./manifest.schema.json",
+  "games": [
+    {
+      "id": "stapzone-training",
+      "name": "Stapzone Therapeutische Training V8 Pro",
+      "entry": "index.html",
+      "version": "1.0.0"
+    }
+  ]
+}

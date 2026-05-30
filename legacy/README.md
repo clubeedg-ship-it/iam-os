@@ -16,6 +16,8 @@ the new implementation can be checked against prior behaviour. See `specs.md`
 - **`iam-game-menu/`** — a compiled Qt5/C++ Windows application
   (`LidarTracker.exe`), binary only — no source code is available. Reference for
   observed behaviour only. Contains a 184 MB installer tracked via Git LFS.
-- **`stapzone_training_v8_pro.html`** — an existing single-file training game.
-  Reference for the game model and the touch contract
-  ([`../docs/touch-contract.md`](../docs/touch-contract.md)).
+- **`stapzone_training_v8_pro.html`** — re-homed in Phase 5 to
+  [`../games/stapzone-training/index.html`](../games/stapzone-training/index.html)
+  and listed in `games/manifest.json`. Its original Phase 1 role was as the
+  reference for the game model and the touch contract; the live, validated
+  copy is now under `games/`.
