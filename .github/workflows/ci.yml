@@ -70,7 +70,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Placeholder - game validation is implemented in Phase 5."
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install validator + Playwright dependencies
+        run: pip install jsonschema pytest pytest-playwright
+      - name: Static validation
+        run: python scripts/validate_games.py
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-v1
+      - name: Install Chromium for Playwright
+        run: python -m playwright install --with-deps chromium
+      - name: Headless game smoke
+        run: pytest scripts/tests/test_games_smoke.py
+      - name: Validator unit tests
+        run: pytest scripts/tests/test_validate_games.py
 
   build-launcher:
     name: Build launcher
