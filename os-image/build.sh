@@ -13,14 +13,13 @@
 #   - an unprivileged iam-os user (uid 1000) and the dialout group,
 #   - the three IAM-OS services + the kiosk session enabled.
 #
-# The output is a rootfs tarball, not a bootable disk image. Producing a
-# flashable .img is Phase 7/8 work (bootloader, partition table, EFI
-# system partition). For the Phase 6 sandbox the tarball is what the
-# QEMU VM script consumes.
+# The output is a rootfs tarball. os-image/make-image.sh wraps it into a
+# bootable disk image (EFI + ext4 root + systemd-boot); both steps run
+# in CI on PR and tag pushes (.github/workflows/ci.yml).
 #
 # This script is Linux-only: mmdebstrap and (in --architectures) Debian's
-# multi-arch toolchain are not available on macOS. On macOS, run it inside
-# a Linux VM or rely on CI (wired up in Phase 7).
+# multi-arch toolchain are not available on macOS. On macOS, run it
+# inside a Linux VM or rely on CI.
 
 set -euo pipefail
 
@@ -32,6 +31,9 @@ OUT_DIR="${OUT_DIR:-out}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_ROOT="$REPO_ROOT/$OUT_DIR"
 OUT_TAR="$OUT_ROOT/iam-os-${VERSION}-${ARCH}-rootfs.tar"
+
+GIT_SHA="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [ "$(uname -s)" != "Linux" ]; then
     echo "build.sh: Debian bootstrap requires Linux (host is $(uname -s))" >&2
@@ -53,6 +55,7 @@ mkdir -p "$OUT_ROOT"
 
 PACKAGES=(
     systemd-sysv
+    systemd-boot
     udev
     dbus
     ca-certificates
@@ -60,6 +63,7 @@ PACKAGES=(
     cage
     iproute2
     locales
+    linux-image-amd64
     python3
     python3-venv
     python3-pip
@@ -99,6 +103,14 @@ mmdebstrap \
         rmdir /etc/udev/rules.d/iam-os
         systemctl enable iam-lidar-service.service iam-touch-bridge.service iam-web-server.service iam-os-kiosk.service
         systemctl set-default graphical.target
+        cat > /etc/iam-os-version <<RELEASE
+IAM_OS_VERSION=$VERSION
+IAM_OS_GIT_SHA=$GIT_SHA
+IAM_OS_BUILD_DATE=$BUILD_DATE
+IAM_OS_ARCH=$ARCH
+IAM_OS_SUITE=$SUITE
+RELEASE
+        sed -i \"s/^PRETTY_NAME=.*/PRETTY_NAME=\\\"IAM-OS $VERSION (Debian $SUITE)\\\"/\" /etc/os-release
     '" \
     --customize-hook="chroot \"\$1\" apt-get clean && rm -rf \"\$1/var/lib/apt/lists/\"*" \
     "$SUITE" \
