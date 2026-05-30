@@ -1,0 +1,28 @@
+[Unit]
+Description=IAM-OS Chromium kiosk
+Documentation=https://github.com/clubeedg-ship-it/iam-os
+After=iam-web-server.service systemd-user-sessions.service
+Requires=iam-web-server.service
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+
+[Service]
+Type=simple
+User=iam-os
+Group=iam-os
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+# cage is a single-app Wayland kiosk: launches one binary fullscreen with no
+# window manager, no decorations, no way to escape. Chromium runs inside it.
+ExecStart=/usr/bin/cage -s -- /opt/iam-os/os-image/chromium-kiosk.sh
+Restart=always
+RestartSec=5
+# specs.md §4.6: the Chromium session restarts if it exits.
+
+[Install]
+WantedBy=graphical.target

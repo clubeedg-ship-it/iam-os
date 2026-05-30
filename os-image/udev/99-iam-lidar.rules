@@ -1,0 +1,16 @@
+# Stable device node + group access for the LiDAR USB serial adapter.
+#
+# The RPLIDAR ships with a Silicon Labs CP210x USB-UART bridge (the C1, S2,
+# S2E all use it). The kernel hands those out as /dev/ttyUSBn which can swap
+# at every plug, so we add a stable /dev/iam-lidar symlink and grant the
+# dialout group read/write access — the iam-lidar-service runs as iam-os in
+# the dialout group (see iam-lidar-service.service).
+#
+# lidar-service auto-detects the serial port (specs.md R2), so even when the
+# symlink is unset the service still finds the device; this rule mostly
+# exists so an operator can grep for /dev/iam-lidar in diagnostic output.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="iam-lidar", GROUP="dialout", MODE="0660"
+
+# FTDI FT232 is a common fallback adapter on older RPLIDARs.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="iam-lidar", GROUP="dialout", MODE="0660"

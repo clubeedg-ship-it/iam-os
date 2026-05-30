@@ -1,0 +1,18 @@
+[Unit]
+Description=IAM-OS touch bridge
+Documentation=https://github.com/clubeedg-ship-it/iam-os
+After=iam-lidar-service.service
+Requires=iam-lidar-service.service
+
+[Service]
+Type=simple
+User=iam-os
+Group=iam-os
+WorkingDirectory=/opt/iam-os/services/touch-bridge
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/iam-os/services/touch-bridge/.venv/bin/python -m iam_bridge
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

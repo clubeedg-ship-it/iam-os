@@ -89,6 +89,58 @@ jobs:
       - name: Validator unit tests
         run: pytest scripts/tests/test_validate_games.py
 
+  lint-shell:
+    name: Lint (shell)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends shellcheck
+      - name: ShellCheck
+        run: |
+          mapfile -t files < <(
+            find . -type f -name '*.sh' \
+              -not -path './legacy/*' \
+              -not -path './*/node_modules/*' \
+              -not -path './*/dist/*' \
+              -not -path './*/.venv/*' \
+              -not -path './*/.git/*'
+          )
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "no shell scripts found"
+            exit 0
+          fi
+          printf 'checking %d file(s):\n' "${#files[@]}"
+          printf '  %s\n' "${files[@]}"
+          shellcheck "${files[@]}"
+
+  validate-units:
+    name: Validate systemd units
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: systemd-analyze verify
+        run: |
+          # systemd-analyze verify checks syntax + executable presence on
+          # the host where it runs. The appliance-only ExecStart paths
+          # (/opt/iam-os/..., /usr/bin/cage) do not exist on the GitHub
+          # runner — but their absence here does not mean the units are
+          # malformed. Strip those expected "is not executable" lines
+          # and fail only if something else remains.
+          status=0
+          for unit in os-image/units/*.service; do
+            echo "::group::$unit"
+            raw="$(systemd-analyze verify --recursive-errors=no "$unit" 2>&1 || true)"
+            printf '%s\n' "$raw"
+            real="$(printf '%s\n' "$raw" | grep -Ev 'is not executable: No such file or directory' || true)"
+            if [ -n "$real" ]; then
+              printf '\n::error::unexpected diagnostic in %s\n' "$unit"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$status"
+
   build-launcher:
     name: Build launcher
     runs-on: ubuntu-latest
