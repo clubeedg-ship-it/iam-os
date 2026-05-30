@@ -11,6 +11,12 @@ Group=dialout
 # dialout for serial access; iam-os user is created by build.sh.
 WorkingDirectory=/opt/iam-os/services/lidar-service
 Environment=PYTHONUNBUFFERED=1
+# Disable NumPy's AVX/AVX2/AVX512 dispatch. The CI boot smoke runs under
+# QEMU TCG, which does not emulate the AVX family; without this the
+# bundled numpy wheel hits SIGILL on its first call. Per-scan arrays are
+# tiny (a few hundred points) so SSE2 vs AVX2 is not measurable on real
+# appliance hardware either.
+Environment=NPY_DISABLE_CPU_FEATURES=AVX AVX2 FMA3 AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR
 ExecStart=/opt/iam-os/services/lidar-service/.venv/bin/python -m iam_lidar
 Restart=always
 RestartSec=2
