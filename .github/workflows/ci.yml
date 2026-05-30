@@ -112,7 +112,11 @@ jobs:
           fi
           printf 'checking %d file(s):\n' "${#files[@]}"
           printf '  %s\n' "${files[@]}"
-          shellcheck "${files[@]}"
+          # --severity=warning skips info-level diagnostics; in practice
+          # the noisy ones we hit (SC2317 unreachable after trap, SC2329
+          # function indirectly invoked via trap) are both info and
+          # legitimate idioms we use deliberately in cleanup handlers.
+          shellcheck --severity=warning "${files[@]}"
 
   validate-units:
     name: Validate systemd units
@@ -172,6 +176,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Resolve image version (filesystem-safe)
+        id: imgver
+        run: |
+          # github.ref_name on PRs is "<PR#>/merge" — the slash breaks
+          # file paths. Sanitize to a plain identifier and append the
+          # short SHA so the artifact is still traceable.
+          ref="${GITHUB_REF_NAME//\//-}"
+          short="$(git rev-parse --short HEAD)"
+          v="${ref}-${short}"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "image version: $v"
       - name: Install image build tools
         run: |
           sudo apt-get update -qq
@@ -189,11 +204,11 @@ jobs:
           path: launcher/dist
       - name: Build rootfs
         env:
-          IAM_OS_VERSION: ${{ github.ref_name }}-${{ github.sha }}
+          IAM_OS_VERSION: ${{ steps.imgver.outputs.version }}
         run: ./os-image/build.sh
       - name: Build appliance image
         env:
-          IAM_OS_VERSION: ${{ github.ref_name }}-${{ github.sha }}
+          IAM_OS_VERSION: ${{ steps.imgver.outputs.version }}
         run: ./os-image/make-image.sh
       - name: Image summary
         run: |
