@@ -1,0 +1,20 @@
+[Unit]
+Description=IAM-OS LiDAR service
+Documentation=https://github.com/clubeedg-ship-it/iam-os
+After=network.target systemd-tmpfiles-setup.service
+Wants=systemd-tmpfiles-setup.service
+
+[Service]
+Type=simple
+User=iam-os
+Group=dialout
+# dialout for serial access; iam-os user is created by build.sh.
+WorkingDirectory=/opt/iam-os/services/lidar-service
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/iam-os/services/lidar-service/.venv/bin/python -m iam_lidar
+Restart=always
+RestartSec=2
+# specs.md G2 / R5: the service must come back on its own.
+
+[Install]
+WantedBy=multi-user.target
