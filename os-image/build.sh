@@ -78,10 +78,10 @@ mmdebstrap \
     --architectures="$ARCH" \
     --variant=minbase \
     --include="$(IFS=,; echo "${PACKAGES[*]}")" \
-    --customize-hook="chroot \"\$1\" mkdir -p /opt/iam-os /usr/share/iam-os /etc/systemd/system/iam-os /etc/tmpfiles.d/iam-os /etc/udev/rules.d/iam-os /opt/iam-os/os-image" \
+    --customize-hook="chroot \"\$1\" mkdir -p /opt/iam-os /opt/iam-os/os-image /usr/share/iam-os /usr/share/iam-os/launcher /etc/systemd/system/iam-os /etc/tmpfiles.d/iam-os /etc/udev/rules.d/iam-os" \
     --customize-hook="copy-in $REPO_ROOT/services /opt/iam-os/" \
     --customize-hook="copy-in $REPO_ROOT/games /usr/share/iam-os/" \
-    --customize-hook="copy-in $REPO_ROOT/launcher/dist /usr/share/iam-os/launcher" \
+    --customize-hook="sync-in $REPO_ROOT/launcher/dist /usr/share/iam-os/launcher" \
     --customize-hook="copy-in $REPO_ROOT/os-image/units /etc/systemd/system/iam-os/" \
     --customize-hook="copy-in $REPO_ROOT/os-image/tmpfiles.d /etc/tmpfiles.d/iam-os/" \
     --customize-hook="copy-in $REPO_ROOT/os-image/udev /etc/udev/rules.d/iam-os/" \
