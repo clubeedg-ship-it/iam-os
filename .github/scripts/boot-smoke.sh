@@ -52,11 +52,18 @@ sudo losetup -d "$LOOP"
 sudo chown "$(id -u):$(id -g)" "$KERNEL_DIR/vmlinuz" "$KERNEL_DIR/initrd"
 note "kernel=$KERNEL_SRC initrd=$INITRD_SRC root=PARTUUID=$ROOT_PARTUUID"
 
-CMDLINE="root=PARTUUID=$ROOT_PARTUUID ro console=tty0 console=ttyS0,115200n8 systemd.show_status=yes clearcpuid=avx,avx2,fma"
+CMDLINE="root=PARTUUID=$ROOT_PARTUUID ro console=tty0 console=ttyS0,115200n8 systemd.show_status=yes"
 note "kernel cmdline: $CMDLINE"
 
-note "booting under QEMU (TCG, headless, serial -> $SERIAL_LOG)"
+# QEMU's default "qemu64" CPU only exposes SSE3. NumPy 2.x's baseline
+# is x86-64-v2 (SSE4.2), so the bundled wheel SIGILLs on any CPU
+# weaker than that — including qemu64. "-cpu max" tells TCG to expose
+# every feature it knows how to emulate, which on QEMU 8+ includes
+# SSE4.2, AVX, and AVX2. That covers NumPy without touching the
+# appliance image.
+note "booting under QEMU (TCG -cpu max, headless, serial -> $SERIAL_LOG)"
 qemu-system-x86_64 \
+    -cpu max \
     -m 2048 \
     -smp 2 \
     -drive "file=$IMG,if=virtio,format=raw" \
